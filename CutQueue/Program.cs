@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CutQueue.Lib.SingleGlobalInstance;
+using System;
 using System.Windows.Forms;
 
 /**
@@ -21,9 +22,12 @@ namespace CutQueue
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new AppContext());
+            using (new SingleGlobalInstance(1000)) //1000ms timeout on global lock
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new AppContext());
+            }
         }
     }
 }

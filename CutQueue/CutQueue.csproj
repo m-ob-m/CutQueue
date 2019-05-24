@@ -66,6 +66,7 @@
     <Compile Include="Lib\import\model\FichierCSV.cs" />
     <Compile Include="Lib\Logging\Logger.cs" />
     <Compile Include="Lib\optimize\Optimize.cs" />
+    <Compile Include="Lib\SingleGlobalInstance\SingleGlobalInstance.cs" />
     <Compile Include="Lib\tools\Impersonation.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

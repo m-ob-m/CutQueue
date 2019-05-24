@@ -1,0 +1,13 @@
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\config.ini
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\CutQueue.exe.config
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\CutQueue.exe
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\CutQueue.pdb
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\Newtonsoft.Json.dll
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\Newtonsoft.Json.xml
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.Properties.Resources.resources
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.csproj.GenerateResource.cache
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.csproj.CoreCompileInputs.cache
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.csproj.CopyComplete
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.exe
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.pdb
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.csprojAssemblyReference.cache

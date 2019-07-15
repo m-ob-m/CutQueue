@@ -82,6 +82,7 @@ namespace CutQueue.Lib.import.model
                     dynamic job = new ExpandoObject();
                     job.name = GetJobNumber();
                     job.deliveryDate = (_entrees[0].DueDate != "" && _entrees[0].DueDate != null) ? _entrees[0].DueDate : null;
+                    job.customerPO = (_entrees[0].CustomerPO != "" && _entrees[0].CustomerPO != null) ? _entrees[0].CustomerPO : null;
                     job.jobTypes = new List<ExpandoObject>();
 
                     foreach (EntreeCSV entree in _entrees)
@@ -292,6 +293,7 @@ namespace CutQueue.Lib.import.model
 	    private string _dimH1;
 	    private string _dimH2;
         private string _dueDate;
+        private string _customerPO;
 
         
         /// <summary>
@@ -321,15 +323,16 @@ namespace CutQueue.Lib.import.model
         public string DimH1 { get => _dimH1; set => _dimH1 = value; }
         public string DimH2 { get => _dimH2; set => _dimH2 = value; }
         public string DueDate { get => _dueDate; set => _dueDate = value; }
+        public string CustomerPO { get => _customerPO; set => _customerPO = value; }
 
         /// <summary>
-        /// Parses the line fro the csv file and extracts its data. 
+        /// Parses the line from the csv file and extracts its data. 
         /// </summary>
         private void Parse()
         {
             List<string> split = Ligne.Split(';').ToList();
 
-            while (split.Count < 16)
+            while (split.Count < 17)
             {
                 split.Add("");
             }
@@ -350,6 +353,7 @@ namespace CutQueue.Lib.import.model
 		    DimH1 = split[13];
 		    DimH2 = split[14];
             DueDate = split[15];
+            CustomerPO = split[16];
 
             if (Type.Trim() == "")
             {

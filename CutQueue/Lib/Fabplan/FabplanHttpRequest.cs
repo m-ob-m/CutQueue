@@ -114,6 +114,9 @@ namespace CutQueue.Lib.Fabplan
         /// Thrown when the response from Fabplan does not respect the expected response format 
         /// {"status":status, "success": {"data": successData}, "failure": {"message": failureMessage}}.
         /// </exception>
+        /// <exception cref="FabplanHttpResponseWarningException">
+        /// Thrown when the status of the response is set to warning, meaning that there was a warning issued by the server, but the server 
+        /// was still able to send a properly formatted response.
         /// <exception cref="FabplanHttpResponseFailureException">
         /// Thrown when the status of the response is set to failure, meaning that there was an error on the server's side, but the server 
         /// was still able to send a properly formatted response.

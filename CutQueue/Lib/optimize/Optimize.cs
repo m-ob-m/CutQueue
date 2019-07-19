@@ -41,6 +41,7 @@ namespace CutQueue
                     catch (Exception e)
                     {
                         Logger.Log(new Exception("Could not optimize batch.", e).ToString());
+                        continueStatus = ContinueStatus.No;
                     }
                     finally
                     {
@@ -75,7 +76,7 @@ namespace CutQueue
                 }
                 catch (Exception e)
                 {
-                    await UpdateEtatMpr(batch.id, 'E', e.Message);
+                    await UpdateEtatMpr(((dynamic)batch).id, 'E', e.Message);
                 }
             }
             else
@@ -91,7 +92,7 @@ namespace CutQueue
         /// </summary>
         /// <exception cref="Exception">Thrown when the server fails to repond or responds improperly.</exception>
         /// <returns>An object that represents the next batch to optimize.</returns>
-        private async Task<ExpandoObject> GetNextBatchToOptimize()
+        private async Task<dynamic> GetNextBatchToOptimize()
         {
             UriBuilder builder = new UriBuilder()
             {
@@ -112,34 +113,38 @@ namespace CutQueue
             }
 
             dynamic batch = new ExpandoObject();
-            if (batch != null)
+            if (rawBatch != null)
             {
                 try
                 {
-                    batch.Add("id", rawBatch.GetValue("id"));
+                    batch.id = rawBatch.GetValue("id").ToObject<long>();
                 }
                 catch (Exception e)
                 {
-                    throw new Exception("Next batch to optimize is missing its \"id\" meember.", e);
+                    throw new Exception("Next batch to optimize is missing its \"id\" member.", e);
                 }
 
                 try
                 {
-                    batch.Add("name", rawBatch.GetValue("name"));
+                    batch.name = rawBatch.GetValue("name").ToObject<string>();
                 }
                 catch (Exception e)
                 {
-                    throw new Exception("Next batch to optimize is missing its \"name\" meember.", e);
+                    throw new Exception("Next batch to optimize is missing its \"name\" member.", e);
                 }
 
                 try
                 {
-                    batch.Add("pannels", rawBatch.GetValue("pannels"));
+                    batch.pannels = rawBatch.GetValue("pannels").ToObject<string>();
                 }
                 catch (Exception e)
                 {
-                    throw new Exception("Next batch to optimize is missing its \"pannels\" meember.", e);
+                    throw new Exception("Next batch to optimize is missing its \"pannels\" member.", e);
                 }
+            }
+            else
+            {
+                return null;
             }
 
             return batch;
@@ -183,9 +188,9 @@ namespace CutQueue
         private async Task OptimizeBatch(dynamic batch)
         {
             // Changer l'état pour en cours (P pour In Progress)
-            await UpdateEtatMpr(batch.id, 'P');
+            await UpdateEtatMpr(((dynamic)batch).id, 'P');
 
-            string toImport = batch.name + ".txt";      // Nom du fichier CSV
+            string toImport = ((dynamic)batch).name + ".txt";      // Nom du fichier CSV
 
             // Import du CSV
             ExecuteProcess("autoit\\importCSV.exe", toImport);
@@ -194,7 +199,7 @@ namespace CutQueue
             ExecuteProcess("autoit\\panneaux.exe ", toImport);
 
             // Modification du fichier .brd pour avoir les bons panneaux
-            ModifyPanneaux(batch.pannels, batch.name);
+            ModifyPanneaux(((dynamic)batch).pannels, ((dynamic)batch).name);
 
             // Optimisation
             string msg = ExecuteProcess("autoit\\optimise.exe", toImport);
@@ -209,12 +214,12 @@ namespace CutQueue
             short nbImg = 0;     // Décompte pour copie des fichiers
             for (int i = 1; i < 9999; i++)
             {
-                string wmf_name = "$" + batch.name + FillZero(i, 4) + "$.wmf";
+                string wmf_name = "$" + ((dynamic)batch).name + FillZero(i, 4) + "$.wmf";
 
                 if (File.Exists(ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\" + wmf_name))
                 {
                     // Conversion WMF vers JPG
-                    ExecuteProcess("autoit\\imagemagick.exe", wmf_name + " " + batch.name + FillZero(i, 4) + ".jpg");	
+                    ExecuteProcess("autoit\\imagemagick.exe", wmf_name + " " + ((dynamic)batch).name + FillZero(i, 4) + ".jpg");	
                     nbImg++;
                 }
                 else
@@ -224,26 +229,26 @@ namespace CutQueue
             }
 
             // Copie des fichiers .ctt, .pc2 et images JPEG vers serveur
-            string rep_dest = ConfigINI.GetInstance().Items["V200"] + batch.nameh + "\\"; // Répertoire des destination des fichiers
+            string rep_dest = ConfigINI.GetInstance().Items["V200"] + ((dynamic)batch).name + "\\"; 
             Directory.CreateDirectory(rep_dest);
 
-            string sourceCTTFilepath = ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\" + batch.name + ".ctt";
-            File.Copy(sourceCTTFilepath, rep_dest + batch.name + ".ctt", true);
-            string sourcePC2FilePath = ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\" + batch.name + ".pc2";
-            File.Copy(sourcePC2FilePath, rep_dest + batch.name + ".pc2", true);
+            string sourceCTTFilepath = ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\" + ((dynamic)batch).name + ".ctt";
+            File.Copy(sourceCTTFilepath, rep_dest + ((dynamic)batch).name + ".ctt", true);
+            string sourcePC2FilePath = ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\" + ((dynamic)batch).name + ".pc2";
+            File.Copy(sourcePC2FilePath, rep_dest + ((dynamic)batch).name + ".pc2", true);
 
             for (short i = 1; i <= nbImg; i++)  // Copie des images JPEG
             {
-                string source = ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\" + batch.name + FillZero(i, 4) + ".jpg";
+                string source = ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\" + ((dynamic)batch).name + FillZero(i, 4) + ".jpg";
                 string destination = rep_dest + batch.name + FillZero(i, 4) + ".jpg";
                 File.Copy(source, destination, true);
             }
 
             // Création du fichier de batch "batch.txt"
-            File.WriteAllText(rep_dest + "batch.txt", batch.id.ToString());
+            File.WriteAllText(rep_dest + "batch.txt", ((dynamic)batch).id.ToString());
 
             // Optimisation terminée
-            await UpdateEtatMpr(batch.id, 'G');
+            await UpdateEtatMpr(((dynamic)batch).id, 'G');
         }
 
 

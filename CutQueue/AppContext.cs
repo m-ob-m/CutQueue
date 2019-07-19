@@ -111,7 +111,7 @@ namespace CutQueue
         private void DoSync()
         {
             Task.Factory.StartNew(async () => await _csv.DoSync());
-             /*Task.Factory.StartNew(async () => await _optimize.DoOptimize());*/
+            Task.Factory.StartNew(async () => await _optimize.DoOptimize());
         }
 
         /// <summary>

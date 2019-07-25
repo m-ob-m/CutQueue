@@ -45,7 +45,7 @@ namespace CutQueue
                 }
                 catch (Exception e)
                 {
-                    Logger.Log(new Exception("Error during importation process.", e).ToString());
+                    throw new Exception("Error during importation process.", e);
                 }
                 finally
                 {

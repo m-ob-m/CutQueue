@@ -40,14 +40,12 @@ namespace CutQueue
                     }
                     catch (Exception e)
                     {
-                        Logger.Log(new Exception("Could not optimize batch.", e).ToString());
-                        continueStatus = ContinueStatus.No;
-                    }
-                    finally
-                    {
                         _inProgress = false;
+                        throw new Exception("Could not optimize batch.", e);
                     }
                 }
+
+                _inProgress = false;
             }
         }
 

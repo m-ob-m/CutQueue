@@ -186,7 +186,7 @@ namespace CutQueue
         private async Task OptimizeBatch(dynamic batch)
         {
             // Changer l'état pour en cours (P pour In Progress)
-            await UpdateEtatMpr(((dynamic)batch).id, 'P');
+            await UpdateEtatMpr(((dynamic)batch).id, 'C');
 
             string toImport = ((dynamic)batch).name + ".txt";      // Nom du fichier CSV
 

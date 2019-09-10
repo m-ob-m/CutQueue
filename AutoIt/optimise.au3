@@ -17,65 +17,67 @@
 ;ConsoleWrite("Starting optimise.exe.")
 
 ; CSV à importer selon la valeur en argument
-$toOptimise = "MERC_1ER_FEV_MDF_34_DOS_ERABLE.txt"	; Pour fin de tests et debug seulement. Doit �tre chang� par argument
+$toOptimise = "71999P.txt"	; Pour fin de tests et debug seulement. Doit être changé par argument
 
-if $cmdLine[0] > 0 Then ; Chargement de l'argument en ligne de commande
-   $toOptimise = $cmdLine[1]
-EndIf
-
-; Il est nécessaire de faire les appels à partir de ce répertoire
-FileChangeDir("C:\V90\FABRIDOR")
+If $cmdLine[0] > 0 Then $toOptimise = $cmdLine[1]
+Local $order = StringRegExpReplace($toOptimise, "\A(.*)\.txt\z", "\1")
 
 ; Ouvre l'importateur de CSV de CutRite
-Run("C:\V90\Panel.exe " & $toOptimise)
-;ConsoleWrite("Lauching C:\V90\Panel.exe.")
+Local $command = '"C:\V90\Panel.exe" "' & $toOptimise & '"'
+Local $workingDirectory = "C:\V90\FABRIDOR"
+Run($command, $workingDirectory, @SW_HIDE)
 
 ; Attendre que l'optimisateur ouvre
-WinWait("[TITLE:Part list - ]")
+Local $partListWindow = WinWait("[TITLE:Part list - " & $order & ";]")
+;~ ConsoleWrite("Found window with handle " & '"' & $partListWindow & '"' & ".")
 
 ; Clique sur le bouton d'optimisation
-ControlClick("[TITLE:Part list - ]", "", "ToolbarWindow321", "left",1 ,488,25)
+ControlClick($partListWindow, "", "[CLASS:ToolbarWindow32; INSTANCE:1;]", "primary", 1 , 488, 25)
 
 ; Attendre la fenetre d'optimisation
-WinWait("[TITLE:Optimise - ]")
+Local $optimiseMainWindow = WinWait("[TITLE:Optimise - " & $order & ";]")
 
-; Attendre que la fenetre avec le message d'erreur _pnumber.mpr s'ouvre pour cliquer OK
-Local $window = WinWait("[TITLE:Error]", "", 1)
-If($window <> 0 ) Then
-   Opt ("WinDetectHiddenText", 1)
-   $texts = StringSplit(WinGetText("[TITLE:Error]"), @LF)
+; Attendre la fenêtre qui indique que l'optimisation est en cours. Si une fenêtre d'erreur apparaît, le processus a échoué.
+While WinExists($optimiseMainWindow) == 1 And WinExists("[TITLE:Optimise; CLASS:#32770;]") == 0
+   If WinExists("[TITLE:Error; CLASS:#32770;]") == 1 Then
+      Local $optimiseErrorWindow = WinGetHandle("[TITLE:Error; CLASS:#32770;]")
+      Local $optimiseErrorWindowGXWNDControl = ControlGetHandle($optimiseErrorWindow, "", "[CLASS:GXWND; INSTANCE:1;]")
+      Opt ("WinDetectHiddenText", 1)
 
-   ; *** ERREUR ***
-   ControlClick("[TITLE:Error]", "", "GXWND1", "left",1 ,386,11)	;Clique pour obtenir le message d'erreur
-   Sleep(500)
+      ; *** ERREUR ***
+      ControlClick($optimiseErrorWindow, "", $optimiseErrorWindowGXWNDControl, "primary", 1 , 100, 30)	;Clique pour obtenir le message d'erreur
+      Sleep(500)
+      Local $errorDescription = ControlGetText($optimiseErrorWindow, "", "[CLASS:Edit; INSTANCE:1;]") & @CRLF
+      ControlClick($optimiseErrorWindow, "", $optimiseErrorWindowGXWNDControl, "primary", 1 , 400, 30)	;Clique pour obtenir le message d'erreur
+      Sleep(500)
+      $errorDescription = $errorDescription & ControlGetText($optimiseErrorWindow, "", "[CLASS:Edit; INSTANCE:1;]")
 
-   ; Obtention du message d'erreur
-   $erreur = ControlGetText("[TITLE:Error]", "", "Edit1")
+      ; Annuler l'optimisation
+      Sleep(500)
+      ControlClick($optimiseErrorWindow, "", "[CLASS:Button2;]", "primary", 1, 40, 18)
 
-   ; Annuler l'optimisation
-   Sleep(500)
-   ControlClick("[TITLE:Error]", "", "Button2", "left",1 ,40,18)
+      ; Fermer la fenetre d'optimisation
+      Sleep(500)
+      WinKill($optimiseMainWindow)	; Fermeture de l'optimisateur
+      WinKill($optimiseErrorWindow)
 
-   ; Fermer la fenetre d'optimisation
-   Sleep(500)
-   WinKill("[TITLE:Optimise - ]")
+      ; Message d'erreur
+      ConsoleWrite($errorDescription)
 
-   ; Message d'erreur
-   ConsoleWrite("<b>ERREUR<b><br><hr><br><span style='color:#CC0000;'>" & $erreur & "<BR>" & $texts[6] & "</span>")
-
-   Exit
-EndIf
+      Exit
+   EndIf
+WEnd
 
 ; Attendre la fenetre de revue. Durant ce temps, vérifier si la fenêtre d'erreur de RunCalc ouvre
-While WinExists("[TITLE:Review runs]") = false
+While (WinExists("[TITLE:Review runs]") == 0)
    If WinExists("[TITLE:RUNCALC]") Then
 	  ; Si erreur RUNCALC, fermer tout et envoyer un message d'erreur à PHP
 
 	  WinKill("[TITLE:RUNCALC]")	; Fermeture de l'erreur de RunCalc
-	  WinKill("[TITLE:Optimise - ]")	; Fermeture de l'optimisateur
+	  WinKill($optimiseMainWindow)	; Fermeture de l'optimisateur
 
 	  ; Message d'erreur pour PHP
-	  ConsoleWrite("<b>ERREUR<b><br><hr><br><span style='color:#CC0000;'>RUNCALC.EXE CRASH</span>")
+	  ConsoleWrite('Process "RUNCALC.EXE" crashed unexpectedly.')
 	  Exit
    EndIf
 
@@ -87,10 +89,6 @@ WEnd
 ; *****************************
 TransfertVersCNC()
 ; *****************************
-
-; Fermeture de la fenetre de revue
-Sleep(500)
-WinKill("[TITLE:Review runs]")
 
 ; Message que tout est correct
 ConsoleWrite("OK")
@@ -105,26 +103,30 @@ Exit
 ; #					pour recommencer le transfer
 ; ##########################################################################
 Func TransfertVersCNC()
-   Local $window = WinGetHandle("[TITLE:Review runs]", "")
-   Local $control = ControlGetHandle($window, "", "[CLASS:Afx:ToolBar:400000:8:10003:10; INSTANCE:1]")
-   While WinExists("[TITLE:Transfer to machining centre]") = false
-	   WinActivate($window)
+   Local $reviewRunsWindow = WinGetHandle("[TITLE:Review runs;]")
+   While WinExists("[TITLE:Transfer to machining centre; CLASS:#32770;]") == 0
+	   WinActivate($reviewRunsWindow)
 	   sleep(100)
-	   ControlClick($window, "", $control, "primary", 1, 345, 30)
+	   ControlClick($reviewRunsWindow, "", "[CLASS:Afx:ToolBar:400000:8:10003:10; INSTANCE:1;]", "primary", 1, 345, 30)
 	   Sleep(400)
    WEnd
 
-   While WinExists("[TITLE:Transfer to]")
-	  if WinExists("[TITLE:Transfer to]", "Data not correct") Then	; Détecte la fenetre d'erreur
-		 While WinExists("[TITLE:Transfer to]", "Data not correct")	; Fait disparaitre la fenetre d'erreur
-			ControlClick("[TITLE:Transfer to]", "Data not correct", "Button2", "left",1 ,39,10)
-			Sleep(500)
-		 Wend
-		 Sleep(3000)
-		 TransfertVersCNC()	; Recommence le transfert vers la CNC
-	  EndIf
+   While WinExists("[TITLE:Transfer to machining centre; CLASS:#32770;]")
+      Local $transferWindow = WinGetHandle("[TITLE:Transfer to machining centre; CLASS:#32770;]")
+	   If ControlGetText($transferWindow, "", "[CLASS:Static; INSTANCE:1]") == "Data not correct" Then	; Détecte la fenetre d'erreur
+         While WinExists($transferWindow)	; Fait disparaitre la fenetre d'erreur
+            ControlClick($transferWindow, "", "[CLASS:Button2]", "primary", 1, 39, 10)
+            Sleep(500)
+         Wend
+         Sleep(3000)
+         TransfertVersCNC()	; Recommence le transfert vers la CNC
+      EndIf
 
-	  Sleep(100)
+      Sleep(100)
    WEnd
+
+   ; Fermeture de la fenetre de revue
+   Sleep(500)
+   WinKill($reviewRunsWindow)
 
 EndFunc

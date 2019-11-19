@@ -1,4 +1,4 @@
-﻿using CutQueue.Lib.import.model;
+﻿using CutQueue.Lib.JobImporter;
 using System;
 using System.IO;
 using System.Linq;
@@ -20,22 +20,20 @@ namespace CutQueue
 {
     class ImportCSV
     {
-        private static bool _inProgress = false;
+        private static bool inProgress = false;
 
-        public ImportCSV()
-        {
-        }
+        public ImportCSV(){}
 
         /// <summary>
         /// Importation process
         /// </summary>
         public async Task DoSync()
         {
-            if (!_inProgress)
+            if (!inProgress)
             {
                 try
                 {
-                    _inProgress = true;
+                    inProgress = true;
                     int previousUpdateDate = await GetLastUpdateDate();
                     int currentUpdateDate = await ImportAllCSV(previousUpdateDate);
                     if(currentUpdateDate > previousUpdateDate)
@@ -45,11 +43,11 @@ namespace CutQueue
                 }
                 catch (Exception e)
                 {
-                    throw new Exception("Error during importation process.", e);
+                    Logger.Log(string.Format("Error during importation process: {0}", e.ToString()));
                 }
                 finally
                 {
-                    _inProgress = false;
+                    inProgress = false;
                 }
             }
         }
@@ -63,19 +61,29 @@ namespace CutQueue
         /// <returns>The UNIX timestamp of the last update date of the importator module in Fabplan</returns>
         private async Task<int> ImportAllCSV(int highestDate)
         {
-            string userName = ConfigINI.GetInstance().Items["SIA_username"].ToString();
-            string password = ConfigINI.GetInstance().Items["SIA_password"].ToString();
-            using (new Impersonation(userName, "", password))
-            {
-                FileInfo[] files = new DirectoryInfo(ConfigINI.GetInstance().Items["CSV"].ToString())
-                    .GetFiles()
-                    .Where(p => (int)p.LastWriteTimeUtc.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds > highestDate)
-                    .OrderBy(p => p.LastWriteTimeUtc).ToArray();
+            string userName = ConfigINI.GetInstance().Items["SIA_USER_NAME"].ToString();
+            string password = ConfigINI.GetInstance().Items["SIA_PASSWORD"].ToString();
+            string domainName = ConfigINI.GetInstance().Items["SIA_DOMAIN_NAME"].ToString();
+            bool debug = ConfigINI.GetInstance().Items["DEBUG"].ToString() != "0";
+            string debugImportFileName = ConfigINI.GetInstance().Items["DEBUG_IMPORT_FILE_NAME"].ToString();
+            DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
 
-                foreach (FileInfo file in files)
+            using (new Impersonation(domainName, userName, password))
+            {
+                FileInfo[] fileInfos = new DirectoryInfo(ConfigINI.GetInstance().Items["CSV"].ToString())
+                    .GetFiles()
+                    .Where((file) => {
+                        int unixTimestamp = Convert.ToInt32(file.LastWriteTimeUtc.Subtract(unixEpoch).TotalSeconds);
+                        return !debug && unixTimestamp > highestDate || debug && file.Name == debugImportFileName;
+                    })
+                    .OrderBy((file) => {return file.LastWriteTimeUtc;})
+                    .ToArray();
+
+                foreach (FileInfo fileInfo in fileInfos)
                 {
-                    await new FichierCSV(file).Import();
-                    highestDate = (int)file.LastWriteTimeUtc.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
+                    await JobImporter.ImportJobFromCSVFileAndExportToFabplan(fileInfo);
+                    int unixTimestamp = Convert.ToInt32(fileInfo.LastWriteTimeUtc.Subtract(unixEpoch).TotalSeconds);
+                    highestDate = Math.Max(highestDate, unixTimestamp);
                 }
             }
 

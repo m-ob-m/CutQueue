@@ -15,8 +15,7 @@ namespace CutQueue
 {
     class ConfigINI
     {
-        private Hashtable _items = new Hashtable();
-        private static ConfigINI _instance = null;
+        private static ConfigINI instance = null;
 
         /// <summary>
         /// Gets static instance of class.
@@ -24,12 +23,12 @@ namespace CutQueue
         /// <returns>The static instance of the class</returns>
         public static ConfigINI GetInstance()
         {
-            if (_instance == null)
+            if (instance == null)
             {
-                _instance = new ConfigINI(Application.StartupPath + "\\config.ini");
+                instance = new ConfigINI(Application.StartupPath + "\\config.ini");
             }
 
-            return _instance;
+            return instance;
         }
 
         /// <summary>
@@ -71,17 +70,6 @@ namespace CutQueue
             }
         }
 
-        public Hashtable Items
-        {
-            get
-            {
-                return _items;
-            }
-
-            set
-            {
-                _items = value;
-            }
-        }
+        public Hashtable Items { get; set; } = new Hashtable();
     }
 }

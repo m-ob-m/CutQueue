@@ -13,23 +13,22 @@ namespace CutQueue
     /// </summary>
     class Optimize
     {
-        private static bool _inProgress = false;
+        private static bool inProgress = false;
         private enum ContinueStatus {No, Yes}
 
         /// <summary>
         /// Main constructor
         /// </summary>
-        public Optimize()
-        {}
+        public Optimize(){}
 
         /// <summary>
         /// Optimizes batches until there is nothing left to optimize.
         /// </summary>
         public async Task DoOptimize()
         {
-            if (!_inProgress)
+            if (!inProgress)
             {
-                _inProgress = true;
+                inProgress = true;
                 ContinueStatus continueStatus = ContinueStatus.Yes;
 
                 while (continueStatus == ContinueStatus.Yes)
@@ -40,12 +39,12 @@ namespace CutQueue
                     }
                     catch (Exception e)
                     {
-                        _inProgress = false;
-                        throw new Exception("Could not optimize batch.", e);
+                        inProgress = false;
+                        Logger.Log(string.Format("Error during optimization process: {0}", e.ToString()));
                     }
                 }
 
-                _inProgress = false;
+                inProgress = false;
             }
         }
 

@@ -35,24 +35,6 @@ namespace CutQueue.Lib.Fabplan
         }
 
         /// <summary>
-        /// Gets the static instance of the class
-        /// </summary>
-        /// <returns>The static instance of the class</returns>
-        private static FabplanHttpRequest GetInstance()
-        {
-            return instance;
-        }
-
-        /// <summary>
-        /// Return the HttpClient object of the class.
-        /// </summary>
-        /// <returns></returns>
-        private HttpClient GetHttpClient()
-        {
-            return httpClient;
-        }
-
-        /// <summary>
         /// Performs a get http request to Fabplan
         /// </summary>
         /// <param name="url"> The url</param>
@@ -71,8 +53,8 @@ namespace CutQueue.Lib.Fabplan
                     }
                     url += (parameterStringArray.Count() > 0) ? $"?{string.Join("&", parameterStringArray)}" : "";
                 }
-                GetInstance().response = await GetInstance().GetHttpClient().GetAsync(url);
-                GetInstance().response.EnsureSuccessStatusCode();
+                instance.response = await instance.httpClient.GetAsync(url);
+                instance.response.EnsureSuccessStatusCode();
             }
             catch (Exception e)
             {
@@ -94,7 +76,7 @@ namespace CutQueue.Lib.Fabplan
             try
             {
                 StringContent httpPostBody = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
-                instance.response = await GetInstance().GetHttpClient().PostAsync(url, httpPostBody);
+                instance.response = await instance.httpClient.PostAsync(url, httpPostBody);
                 instance.response.EnsureSuccessStatusCode();
             }
             catch (Exception e)

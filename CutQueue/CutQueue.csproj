@@ -37,6 +37,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -46,8 +47,12 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CsvHelper, Version=12.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.12.1.2\lib\net45\CsvHelper.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -55,6 +60,9 @@
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
@@ -62,12 +70,13 @@
     <Compile Include="AppContext.cs" />
     <Compile Include="Lib\ConfigINI.cs" />
     <Compile Include="Lib\Fabplan\FabplanHttpRequest.cs" />
-    <Compile Include="Lib\import\ImportCSV.cs" />
-    <Compile Include="Lib\import\model\FichierCSV.cs" />
+    <Compile Include="Lib\Import\ImportCSV.cs" />
+    <Compile Include="Lib\Import\Model\JobImporter.cs" />
+    <Compile Include="Lib\Import\Model\Job.cs" />
     <Compile Include="Lib\Logging\Logger.cs" />
-    <Compile Include="Lib\optimize\Optimize.cs" />
+    <Compile Include="Lib\Optimize\Optimize.cs" />
     <Compile Include="Lib\SingleGlobalInstance\SingleGlobalInstance.cs" />
-    <Compile Include="Lib\tools\Impersonation.cs" />
+    <Compile Include="Lib\Tools\Impersonation.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -114,7 +123,6 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

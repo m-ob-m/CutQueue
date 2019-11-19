@@ -24,14 +24,14 @@ namespace CutQueue
     class AppContext : ApplicationContext
     {
         //Component declarations
-        private NotifyIcon TrayIcon;
-        private ContextMenuStrip TrayIconContextMenu;
-        private ToolStripMenuItem CloseMenuItem;
-        private ToolStripMenuItem SyncMenuItem;
+        private NotifyIcon trayIcon;
+        private ContextMenuStrip trayIconContextMenu;
+        private ToolStripMenuItem closeMenuItem;
+        private ToolStripMenuItem syncMenuItem;
 
-        private Timer _t;   // Timer de synchronisation
-        private readonly ImportCSV _csv;
-        private readonly Optimize _optimize;
+        private Timer timer;   // Timer de synchronisation
+        private readonly ImportCSV importationProcess;
+        private readonly Optimize optimizationProcess;
 
         /// <summary>
         /// Creates the program
@@ -40,19 +40,19 @@ namespace CutQueue
         {
             Application.ApplicationExit += new EventHandler(OnApplicationExit);
             InitializeComponent();
-            TrayIcon.Visible = true;
+            trayIcon.Visible = true;
 
             // Synchronization timer
-            _t = new Timer
+            timer = new Timer
             {
                 Interval = int.Parse(ConfigINI.GetInstance().Items["TIMER"].ToString())
             };
-            _t.Tick += T_Tick;
-            _t.Start();
+            timer.Tick += T_Tick;
+            timer.Start();
 
             // Synchroniztion classes
-            _csv = new ImportCSV();
-            _optimize = new Optimize();
+            importationProcess = new ImportCSV();
+            optimizationProcess = new Optimize();
         }
 
         /// <summary>
@@ -60,41 +60,41 @@ namespace CutQueue
         /// </summary>
         private void InitializeComponent()
         {
-            CloseMenuItem = new ToolStripMenuItem
+            closeMenuItem = new ToolStripMenuItem
             {
                 Name = "CloseMenuItem",
                 Size = new Size(152, 22),
                 Text = "Fermer CutQueue"
             };
-            CloseMenuItem.Click += new EventHandler(CloseMenuItem_Click);
+            closeMenuItem.Click += new EventHandler(CloseMenuItem_Click);
 
-            SyncMenuItem = new ToolStripMenuItem
+            syncMenuItem = new ToolStripMenuItem
             {
                 Name = "SyncMenuItem",
                 Size = new Size(152, 22),
                 Text = "Synchronisation manuelle"
             };
-            SyncMenuItem.Click += new EventHandler(SyncMenuItem_Click);
+            syncMenuItem.Click += new EventHandler(SyncMenuItem_Click);
 
-            TrayIconContextMenu = new ContextMenuStrip
+            trayIconContextMenu = new ContextMenuStrip
             {
                 Name = "TrayIconContextMenu",
                 Size = new Size(153, 70)
             };
-            TrayIconContextMenu.SuspendLayout();
-            TrayIconContextMenu.Items.AddRange(new ToolStripItem[] {SyncMenuItem, CloseMenuItem});
-            TrayIconContextMenu.ResumeLayout(false);
+            trayIconContextMenu.SuspendLayout();
+            trayIconContextMenu.Items.AddRange(new ToolStripItem[] {syncMenuItem, closeMenuItem});
+            trayIconContextMenu.ResumeLayout(false);
 
-            TrayIcon = new NotifyIcon
+            trayIcon = new NotifyIcon
             {
                 BalloonTipIcon = ToolTipIcon.Info,
                 BalloonTipText = "Cliquer avec le bouton de droite pour avoir les options.",
                 BalloonTipTitle = "CutQueue",
                 Text = "CutQueue",
                 Icon = Properties.Resources.v9,
-                ContextMenuStrip = TrayIconContextMenu
+                ContextMenuStrip = trayIconContextMenu
             };
-            TrayIcon.DoubleClick += TrayIcon_DoubleClick;
+            trayIcon.DoubleClick += TrayIcon_DoubleClick;
         }
 
         /// <summary>
@@ -115,8 +115,8 @@ namespace CutQueue
             try
             {
                 await LogInToFabplan();
-                var temp = Task.Factory.StartNew(async () => await _csv.DoSync());
-                temp = Task.Factory.StartNew(async () => await _optimize.DoOptimize());
+                var temp = Task.Factory.StartNew(async () => await importationProcess.DoSync());
+                temp = Task.Factory.StartNew(async () => await optimizationProcess.DoOptimize());
             }
             catch (Exception e)
             {
@@ -141,7 +141,7 @@ namespace CutQueue
             }
 
             //Cleanup so that the icon will be removed when the application is closed
-            TrayIcon.Visible = false;
+            trayIcon.Visible = false;
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace CutQueue
         private void TrayIcon_DoubleClick(object sender, EventArgs e)
         {
             //Here you can do stuff if the tray icon is doubleclicked
-            TrayIcon.ShowBalloonTip(10000);
+            trayIcon.ShowBalloonTip(10000);
         }
 
         /// <summary>
@@ -160,9 +160,9 @@ namespace CutQueue
         /// </summary>
         /// <param name="sender">The element that triggered the event</param>
         /// <param name="e">The arguments of the event</param>
-        private async void SyncMenuItem_Click(object sender, EventArgs e)
+        private void SyncMenuItem_Click(object sender, EventArgs e)
         {
-            await DoSync();
+            var temp = DoSync();
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace CutQueue
             };
 
             dynamic credentials = new {
-                username = ConfigINI.GetInstance().Items["FABPLAN_USERNAME"],
+                username = ConfigINI.GetInstance().Items["FABPLAN_USER_NAME"],
                 password = ConfigINI.GetInstance().Items["FABPLAN_PASSWORD"]
             };
 

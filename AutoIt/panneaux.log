@@ -1,0 +1,19 @@
+panneaux.au3 started.
+Executed command ""C:\V90\panel.exe" "71999P.txt"" in working directory "C:\V90\FABRIDOR".
+Command ""C:\V90\panel.exe" "71999P.txt"" failed to produce the expected window with title "Part list - 71999P". Process 6704 was terminated.
+Retrying...
+Executed command ""C:\V90\panel.exe" "71999P.txt"" in working directory "C:\V90\FABRIDOR".
+Command ""C:\V90\panel.exe" "71999P.txt"" failed to produce the expected window with title "Part list - 71999P". Process 8040 was terminated.
+Retrying...
+Executed command ""C:\V90\panel.exe" "71999P.txt"" in working directory "C:\V90\FABRIDOR".
+Command ""C:\V90\panel.exe" "71999P.txt"" failed to produce the expected window with title "Part list - 71999P". Process 12292 was terminated.
+Retrying...
+Executed command ""C:\V90\panel.exe" "71999P.txt"" in working directory "C:\V90\FABRIDOR".
+Command ""C:\V90\panel.exe" "71999P.txt"" failed to produce the expected window with title "Part list - 71999P". Process 9256 was terminated.
+Retrying...
+Executed command ""C:\V90\panel.exe" "71999P.txt"" in working directory "C:\V90\FABRIDOR".
+Command ""C:\V90\panel.exe" "71999P.txt"" failed to produce the expected window with title "Part list - 71999P". Process 12040 was terminated.
+Retrying...
+Executed command ""C:\V90\panel.exe" "71999P.txt"" in working directory "C:\V90\FABRIDOR".
+Command ""C:\V90\panel.exe" "71999P.txt"" failed to produce the expected window with title "Part list - 71999P". Process 13408 was terminated.
+panneaux.au3 failed.

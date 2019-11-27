@@ -1,5 +1,4 @@
 #include <Constants.au3>
-#include <GUIListView.au3>
 ;
 ; AutoIt Version: 3.0
 ; Language:       English
@@ -7,45 +6,102 @@
 ; Author:         Mathieu Grenier
 ;
 ; Script Function:
-;   Ouvre l'optimisateur de porte pour créer le fichier de panneaux
+;   Ouvre l'optimisateur de porte pour crÃ©er le fichier de panneaux.
 ;
 
-; CSV à importer selon la valeur en argument
-$toOptimise = "MERC_1ER_FEV_MDF_34_DOS_ERABLE.txt"	; Pour fin de tests et debug seulement. Doit être changé par argument
+; CSV Ã  importer selon la valeur en argument.
+Local $partListFileName = "71999P.txt"	; Doit Ãªtre changÃ© par argument de ligne de commande.
+$DEBUG = True
 
-If $cmdLine[0] > 0 Then ; Chargement de l'argument en ligne de commande
-	$toOptimise = $cmdLine[1]
-EndIf
+If $cmdLine[0] > 0 Then $partListFileName = $cmdLine[1]
+Local $batch = StringRegExpReplace($partListFileName, "\A(.*)\.txt\z", "\1")
+Debug(@ScriptName & ' started.' & @CRLF)
 
-; Il est nécessaire de faire les appels à partir de ce répertoire
-FileChangeDir("c:\V90\FABRIDOR")
+Local $attemptCounter = 1
+Local Const $MAX_ATTEMPTS = 5
+Local $mainWindow = 0
+While 1
+	; Ouvre l'importateur de CSV de CutRite.
+	Local $command = '"C:\V90\panel.exe" "' & $partListFileName & '"'
+	Local $workingDirectory = "C:\V90\FABRIDOR"
+	Local $processID = Run($command, $workingDirectory)
+	Debug('Executed command "' & $command & '" in working directory "' & $workingDirectory & '".' & @CRLF)
 
-; Ouvre l'importateur de CSV de CutRite
-Run("c:\V90\panel.exe " & $toOptimise)
+	; Attendre que l'optimisateur ouvre.
+	Local $mainWindowTitle = "Part list - " & $batch
+	Local $waitingTime = 5
+	$mainWindow = WinWait("[TITLE:" & $mainWindowTitle & "]", "", $waitingTime)
+	
+	If $mainWindow == 0 Then 
+		ProcessClose($processID)
+		Debug('Command "' & $command & '" failed to produce the expected window with title "' & $mainWindowTitle & '". Process ' & $processID & ' was terminated.' & @CRLF)
+		If $attemptCounter <= $MAX_ATTEMPTS Then
+			Debug('Retrying...' & @CRLF)
+			$attemptCounter += 1
+			ContinueLoop
+		Else
+			Debug(@ScriptName & ' failed.' & @CRLF)
+			Exit 1
+		EndIf
+	EndIf
 
-; Attendre que l'optimisateur ouvre
-WinWait("[TITLE:Part list - ]")
+	Debug('Found window with title "' & $mainWindowTitle & '" and handle ' & $mainWindow & '.' & @CRLF)
+	ExitLoop
+WEnd
 
-; Renommer la fenêtre car d'autre porte le même nom
-WinSetTitle("[TITLE:Part list - ]", "", "PartMain")
+; Cliquer sur le bouton pour aller vers la vue des panneaux (sur la mÃªme fenÃªtre).
+Local $toolBarClassName = "ToolbarWindow32"
+Local $toolBarInstance = 1
+Local $toolBar = ControlGetHandle($mainWindow, "", "[CLASS:" & $toolBarClassName & "; INSTANCE:" & $toolBarInstance & ";]")
+Debug('Found control with class "' & $toolBarClassName & '" and instance number ' & $toolBarInstance & ' having handle ' & $toolBar & ' in window with handle ' & $mainWindow & '.' & @CRLF)
 
-; Cliquer sur le bouton des panneaux
-ControlClick("[TITLE:PartMain]", "", "ToolbarWindow321", "left",1 ,394,21)
+Local $button = "primary"
+Local $clicks = 1
+Local $coord = [394, 21]
+ControlClick($mainWindow, "", $toolBar, $button, $clicks, $coord[0], $coord[1])
+Debug('Clicked control with handle ' & $toolBar & ' ' & $clicks & ' time' & (($clicks > 1) ? 's' : '') & ' with ' & $button & ' button at coordinates (' & $coord[0] & ', ' & $coord[1] & ').' & @CRLF)
 
-; Cliquer sur le bouton Oui si nécessaire pour faire fermer PartsMain
-While WinExists("[TITLE:PartMain]")
+; Cliquer sur le bouton Oui si nÃ©cessaire.
+While WinExists($mainWindow) And WinGetTitle($mainWindow) == $mainWindowTitle
 	Sleep(500)
-	If WinExists("[TITLE:PartMain]") Then
-		ControlClick("[TITLE:Part list]", "", "Button1", "left",1 ,40,18)
+
+	Local $messageBoxWindowClassName = "#32770"
+	Local $messageBoxWindowTitle = "Part list"
+	Local $messageBoxWindow = WinGetHandle("[CLASS:" & $messageBoxWindowClassName & "; TITLE:" & $messageBoxWindowTitle & ";]")
+	If @error == 0 Then
+		Debug('Found window with class "' & $messageBoxWindowClassName & '" and title "' & $messageBoxWindowTitle & '" and handle ' & $messageBoxWindow & '.' & @CRLF)
+
+		Local $buttonClass = "Button"
+		Local $buttonInstance = 1
+		Local $yesButton = ControlGetHandle($messageBoxWindow, "", "[CLASS:" & $buttonClass & "; INSTANCE:" & $buttonInstance & ";]")
+		Debug('Found control with class "' & $buttonClass & '" and instance number ' & $buttonInstance & ' having handle ' & $yesButton & ' in window with handle ' & $messageBoxWindow & '.' & @CRLF)
+
+		Local $mouseButton = "primary"
+		Local $clicks = 1
+		ControlClick($messageBoxWindow, "", $yesButton, $mouseButton, $clicks)
+		Debug('Clicked control with handle ' & $yesButton & ' ' & $clicks & ' time' & (($clicks > 1) ? 's' : '') & ' with ' & $mouseButton & ' button.' & @CRLF)
+		ExitLoop
 	EndIf
 WEnd
+Debug('Toggled to the "Board list" tab.' & @CRLF)
 
-; Fermer la fenêtre
-WinWait("[TITLE:Board list - ]")
-While WinExists("[TITLE:Board list - ]")
+; Fermer la fenÃªtre.
+While WinExists($mainWindow)
 	Sleep(500)
-	WinKill("[TITLE:Board list - ]")
+	WinKill($mainWindow)
 WEnd
+Debug('Closed window with handle ' & $mainWindow & '.' & @CRLF)
 
 ; Quitter le script
+Debug(@ScriptName & ' completed successfuly.' & @CRLF)
 Exit
+
+Func Debug($text)
+	If $DEBUG == True Then
+		Local $handle = FileOpen(@ScriptDir & "\" & StringRegExpReplace(@ScriptName, "\A(.*)\.[^\.]*\z", "\1") & ".log", $FO_APPEND)
+		If $handle <> -1 Then
+			FileWriteLine($handle, $text)
+			FileClose($handle)
+		EndIf
+	EndIf
+EndFunc

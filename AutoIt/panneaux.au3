@@ -1,5 +1,3 @@
-#include <Constants.au3>
-#include <GUIListView.au3>
 ;
 ; AutoIt Version: 3.0
 ; Language:       English
@@ -7,45 +5,59 @@
 ; Author:         Mathieu Grenier
 ;
 ; Script Function:
-;   Ouvre l'optimisateur de porte pour créer le fichier de panneaux
+;   Ouvre l'optimisateur de porte pour crÃ©er le fichier de panneaux.
 ;
 
-; CSV à importer selon la valeur en argument
-$toOptimise = "MERC_1ER_FEV_MDF_34_DOS_ERABLE.txt"	; Pour fin de tests et debug seulement. Doit être changé par argument
+#include <Constants.au3>
+#include <File.au3>
+#include "CutRite.au3"
+#include "toolbox.au3"
 
-If $cmdLine[0] > 0 Then ; Chargement de l'argument en ligne de commande
-	$toOptimise = $cmdLine[1]
-EndIf
+AutoItSetOption("WinDetectHiddenText", 1)
+AutoItSetOption("MustDeclareVars", 1)
 
-; Il est nécessaire de faire les appels à partir de ce répertoire
-FileChangeDir("c:\V90\FABRIDOR")
+Local $DEBUG = True
 
-; Ouvre l'importateur de CSV de CutRite
-Run("c:\V90\panel.exe " & $toOptimise)
+Main()
 
-; Attendre que l'optimisateur ouvre
-WinWait("[TITLE:Part list - ]")
+Func Main()
+	Local $partListFileName = ($cmdLine[0] > 0) ? $cmdLine[1] : "71999P.txt" ; CSV Ã  importer selon la valeur en argument.
+	Local $temp
+	Debug(@ScriptName & ' started with batch "' & _PathSplit($partListFileName, $temp, $temp, $temp, $temp)[3] & '".' & @CRLF)
 
-; Renommer la fenêtre car d'autre porte le même nom
-WinSetTitle("[TITLE:Part list - ]", "", "PartMain")
+	Local $attemptCounter = 1
+	Local Const $MAX_ATTEMPTS = 5
+	Local $processID = Null
+	Local $mainWindow = 0
+	While Not $mainWindow
+		Local $temp = CutRite_StartPanelExe($partListFileName)
+		$processID = $temp[0]
+		$mainWindow = $temp[1]
+		If @error <> 0 Then 
+			ProcessClose($processID)
+			Debug('The program failed to produce the expected main window. Process ' & $processID & ' was terminated.' & @CRLF)
+			If $attemptCounter <= $MAX_ATTEMPTS Then
+				Debug('Retrying...' & @CRLF)
+				$attemptCounter += 1
+				ContinueLoop
+			Else
+				Debug(@ScriptName & ' failed.' & @CRLF)
+				ExitWithCodeAndMessage(1, Null, 'The main window failed to appear ' & $MAX_ATTEMPTS & " " & (($MAX_ATTEMPTS <= 1) ?  "time" : "times in a row") & ".")
+			EndIf
+		EndIf
+	WEnd
 
-; Cliquer sur le bouton des panneaux
-ControlClick("[TITLE:PartMain]", "", "ToolbarWindow321", "left",1 ,394,21)
-
-; Cliquer sur le bouton Oui si nécessaire pour faire fermer PartsMain
-While WinExists("[TITLE:PartMain]")
-	Sleep(500)
-	If WinExists("[TITLE:PartMain]") Then
-		ControlClick("[TITLE:Part list]", "", "Button1", "left",1 ,40,18)
+	Local $errorMessage = CutRite_RefreshPanels($mainWindow)
+	If @error Then
+		Debug(@ScriptName & ' failed.' & @CRLF)
+		ExitWithCodeAndMessage(2, Null, $errorMessage)
 	EndIf
-WEnd
 
-; Fermer la fenêtre
-WinWait("[TITLE:Board list - ]")
-While WinExists("[TITLE:Board list - ]")
-	Sleep(500)
-	WinKill("[TITLE:Board list - ]")
-WEnd
+	; Fermer la fenÃªtre principale.
+	KillWindow($mainwindow)
+	Debug('Closed window with handle ' & $mainWindow & '.' & @CRLF)
 
-; Quitter le script
-Exit
+	; Quitter le script
+	Debug(@ScriptName & ' completed successfuly.' & @CRLF)
+	ExitWithCodeAndMessage(0)
+EndFunc

@@ -2,8 +2,10 @@
 using CutQueue.Logging;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CutQueue
@@ -207,48 +209,76 @@ namespace CutQueue
                 throw new ArgumentException(msg);
             }
 
-
             // Convertir les fichiers WMF en JPG
-            short nbImg = 0;     // Décompte pour copie des fichiers
+            ConvertBatchWmfToJpg(((dynamic)batch).name, out List<Tuple<Uri, Uri>> wmfToJpgConversionResults);
+
+            // Copie des fichiers .ctt, .pc2 et images JPEG vers serveur
+            Uri sourceDirectoryUri = new Uri(new Uri(new Uri(ConfigINI.GetInstance().Items["FABRIDOR"].ToString()), "SYSTEM_DATA\\"), "DATA\\");
+            Uri destinationDirectoryUri = new Uri(new Uri(ConfigINI.GetInstance().Items["V200"].ToString()), ((dynamic)batch).name); 
+            Directory.CreateDirectory(destinationDirectoryUri.LocalPath);
+
+            List<Tuple<Uri, Uri>> filesToCopy = new List<Tuple<Uri, Uri>>
+            {
+                new Tuple<Uri, Uri>(new Uri(sourceDirectoryUri, ((dynamic)batch).name + ".ctt"), new Uri(destinationDirectoryUri, ((dynamic)batch).name + ".ctt")),
+                new Tuple<Uri, Uri>(new Uri(sourceDirectoryUri, ((dynamic)batch).name + ".pc2"), new Uri(destinationDirectoryUri, ((dynamic)batch).name + ".pc2"))
+            };
+            foreach (Tuple<Uri, Uri> wmfToJpgConversionResult in wmfToJpgConversionResults)
+            {
+                filesToCopy.Add(
+                    new Tuple<Uri, Uri>(
+                        wmfToJpgConversionResult.Item2, 
+                        new Uri(destinationDirectoryUri, Path.GetFileName(wmfToJpgConversionResult.Item2.ToString()))
+                    )
+                );
+            }
+            CopyFiles(filesToCopy);
+
+            // Création du fichier de batch "batch.txt"
+            File.WriteAllText(new Uri(destinationDirectoryUri, "batch.txt").LocalPath, ((dynamic)batch).id.ToString());
+
+            // Optimisation terminée
+            await UpdateEtatMpr(((dynamic)batch).id, 'G');
+        }
+
+        /// <summary>
+        /// Converts a batch's wmf image files to jpg.
+        /// </summary>
+        /// <param name="batchName">The batch name.</param>
+        /// <param name="wmfToJpgConversionResults">
+        /// A list returned in the following form [wmfFileUri_1 => jpgFileUri_1, wmfFileUri_2 => jpgFileUri_2, ..., wmfFileUri_n => jpgFileUri_n].
+        /// </param>
+        public void ConvertBatchWmfToJpg(string batchName, out List<Tuple<Uri, Uri>> wmfToJpgConversionResults)
+        {
+            wmfToJpgConversionResults = new List<Tuple<Uri, Uri>>();
+            Uri baseUri = new Uri(ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\");
             for (int i = 1; i < 9999; i++)
             {
-                string wmf_name = "$" + ((dynamic)batch).name + FillZero(i, 4) + "$.wmf";
+                Uri wmfFileUri = new Uri(baseUri, "$" + batchName + FillZero(i, 4) + "$.wmf");
 
-                if (File.Exists(ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\" + wmf_name))
+                if (File.Exists(wmfFileUri.LocalPath))
                 {
                     // Conversion WMF vers JPG
-                    ExecuteProcess("autoit\\imagemagick.exe", wmf_name + " " + ((dynamic)batch).name + FillZero(i, 4) + ".jpg");	
-                    nbImg++;
+                    Uri jpgFileUri = new Uri(baseUri, batchName + FillZero(i, 4) + ".jpg");
+                    wmfToJpgConversionResults.Add(new Tuple<Uri, Uri>(wmfFileUri, jpgFileUri));
+                    ExecuteProcess(
+                        "autoit\\imagemagick.exe", 
+                        Path.GetFileName(wmfFileUri.LocalPath) + " " + Path.GetFileName(jpgFileUri.LocalPath)
+                    );
                 }
                 else
                 {
                     break;
                 }
             }
-
-            // Copie des fichiers .ctt, .pc2 et images JPEG vers serveur
-            string rep_dest = ConfigINI.GetInstance().Items["V200"] + ((dynamic)batch).name + "\\"; 
-            Directory.CreateDirectory(rep_dest);
-
-            string sourceCTTFilepath = ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\" + ((dynamic)batch).name + ".ctt";
-            File.Copy(sourceCTTFilepath, rep_dest + ((dynamic)batch).name + ".ctt", true);
-            string sourcePC2FilePath = ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\" + ((dynamic)batch).name + ".pc2";
-            File.Copy(sourcePC2FilePath, rep_dest + ((dynamic)batch).name + ".pc2", true);
-
-            for (short i = 1; i <= nbImg; i++)  // Copie des images JPEG
-            {
-                string source = ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\" + ((dynamic)batch).name + FillZero(i, 4) + ".jpg";
-                string destination = rep_dest + batch.name + FillZero(i, 4) + ".jpg";
-                File.Copy(source, destination, true);
-            }
-
-            // Création du fichier de batch "batch.txt"
-            File.WriteAllText(rep_dest + "batch.txt", ((dynamic)batch).id.ToString());
-
-            // Optimisation terminée
-            await UpdateEtatMpr(((dynamic)batch).id, 'G');
         }
 
+        public void CopyFiles(List<Tuple<Uri, Uri>> filesToCopy)
+        {
+            foreach (Tuple<Uri, Uri> fileToCopy in filesToCopy)
+            {
+                File.Copy(fileToCopy.Item1.LocalPath, fileToCopy.Item2.LocalPath, true);
+            }
+        }
 
         /// <summary>
         /// Updates the mpr status (and the comments) of the batch

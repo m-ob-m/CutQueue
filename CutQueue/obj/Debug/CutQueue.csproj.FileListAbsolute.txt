@@ -23,3 +23,7 @@ C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\CutQueue.pdb
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\Newtonsoft.Json.dll
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\Newtonsoft.Json.xml
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Debug\CutQueue.csproj.CopyComplete
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\imagemagick.exe
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\importCSV.exe
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\optimise.exe
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\panneaux.exe

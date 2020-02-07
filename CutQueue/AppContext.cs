@@ -1,10 +1,12 @@
 ﻿using CutQueue.Lib.Fabplan;
+using Microsoft.VisualBasic;
 using System;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CutQueue.Logging;
-
+using System.IO;
+using System.Collections.Generic;
 
 /**
  * \name		AppContext
@@ -28,6 +30,7 @@ namespace CutQueue
         private ContextMenuStrip TrayIconContextMenu;
         private ToolStripMenuItem CloseMenuItem;
         private ToolStripMenuItem SyncMenuItem;
+        private ToolStripMenuItem UpdateImagesMenuItem;
 
         private Timer _t;   // Timer de synchronisation
         private readonly ImportCSV _csv;
@@ -76,13 +79,22 @@ namespace CutQueue
             };
             SyncMenuItem.Click += new EventHandler(SyncMenuItem_Click);
 
+            UpdateImagesMenuItem = new ToolStripMenuItem
+            {
+                Name = "UpdateImagesMenuItem",
+                Size = new Size(152, 22),
+                Text = "Mettre à jour les images",
+                ToolTipText = "Met à jour les images d'un projet modifié dans CutRite"
+            };
+            UpdateImagesMenuItem.Click += new EventHandler(UpdateImagesMenuItem_Click);
+
             TrayIconContextMenu = new ContextMenuStrip
             {
                 Name = "TrayIconContextMenu",
                 Size = new Size(153, 70)
             };
             TrayIconContextMenu.SuspendLayout();
-            TrayIconContextMenu.Items.AddRange(new ToolStripItem[] {SyncMenuItem, CloseMenuItem});
+            TrayIconContextMenu.Items.AddRange(new ToolStripItem[] {SyncMenuItem, UpdateImagesMenuItem, CloseMenuItem});
             TrayIconContextMenu.ResumeLayout(false);
 
             TrayIcon = new NotifyIcon
@@ -104,12 +116,43 @@ namespace CutQueue
         /// <param name="e">The arguments of the event</param>
         private void T_Tick(object sender, EventArgs e)
         {
-            var temp = DoSync();
+            Task temp = DoSync();
         }
 
-       /// <summary>
-       /// The synchronization function
-       /// </summary>
+        /// <summary>
+        /// The function that updates images for a given batch.
+        /// </summary>
+        /// <param name="sender">The element that triggered the event</param>
+        /// <param name="e">The arguments of the event</param>
+        private void UpdateImagesMenuItem_Click(object sender, EventArgs eventArguments)
+        {
+            
+            string batchName = Interaction.InputBox("Entrer le nom de la batch pour laquelle il faut mettre les images à jour.", "Mise à jour des images d'une batch", null);
+            
+            // Convertir les fichiers WMF en JPG
+            _optimize.ConvertBatchWmfToJpg(batchName, out List<Tuple<Uri, Uri>> wmfToJpgConversionResults);
+
+            // Copie des fichiers .ctt, .pc2 et images JPEG vers serveur
+            Uri sourceDirectoryUri = new Uri(new Uri(new Uri(ConfigINI.GetInstance().Items["FABRIDOR"].ToString()), "SYSTEM_DATA\\"), "DATA\\");
+            Uri destinationDirectoryUri = new Uri(new Uri(ConfigINI.GetInstance().Items["V200"].ToString()), batchName);
+            Directory.CreateDirectory(destinationDirectoryUri.LocalPath);
+
+            List<Tuple<Uri, Uri>> filesToCopy = new List<Tuple<Uri, Uri>>();
+            foreach (Tuple<Uri, Uri> wmfToJpgConversionResult in wmfToJpgConversionResults)
+            {
+                filesToCopy.Add(
+                    new Tuple<Uri, Uri>(
+                        wmfToJpgConversionResult.Item2,
+                        new Uri(destinationDirectoryUri, Path.GetFileName(wmfToJpgConversionResult.Item2.ToString()))
+                    )
+                );
+            }
+            _optimize.CopyFiles(filesToCopy);
+        }
+
+        /// <summary>
+        /// The synchronization function
+        /// </summary>
         private async Task DoSync()
         {
             try

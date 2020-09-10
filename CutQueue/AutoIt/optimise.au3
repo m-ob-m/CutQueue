@@ -15,7 +15,9 @@
 
 AutoItSetOption("WinDetectHiddenText", 1)
 AutoItSetOption("MustDeclareVars", 1)
+AutoItSetOption("WinTitleMatchMode", $OPT_MATCHEXACT)
 
+; Enables log files.
 Local $DEBUG = True
 
 Main()
@@ -34,7 +36,7 @@ Func Main()
 		Local $temp = CutRite_StartPanelExe($partListFileName)
 		$processID = $temp[0]
 		$partListWindow = $temp[1]
-		If @error <> 0 Then 
+		If @error <> 0 Then
 			ProcessClose($processID)
 			Debug('The program failed to produce the expected main window. Process ' & $processID & ' was terminated.' & @CRLF)
 			If $attemptCounter <= $MAX_ATTEMPTS Then
@@ -50,36 +52,49 @@ Func Main()
 
 	; Attendre la fenetre de revue. Durant ce temps, vérifier si la fenêtre d'erreur de RunCalc ouvre
 	Debug("Optimisation process starting." & @CRLF)
+	Local $reviewRunsWindow = 0
+	Local $errorMessage = ""
 	Local $temp = CutRite_Optimize($partListWindow)
-	If @error Then
-		Local $errorMessage = $temp
-		KillWindow($partListWindow)
-		Debug(@ScriptName & ' failed: ' & $errorMessage & @CRLF)
-		ExitWithCodeAndMessage(3, $errorMessage)
+	If @error == 0 Then
+		Debug("Optimisation process done." & @CRLF)
+		$reviewRunsWindow = $temp
+
+		; Transfer to machining center
+		Debug("Transfer to machining center process starting" & @CRLF)
+		Local $MAX_ATTEMPTS = 5
+		Local $i = 0
+		Do
+			$i += 1
+			$errorMessage = CutRite_TransferToMachiningCenter($reviewRunsWindow)
+			If @error Then
+				Debug('The transfer to machining center process returned error message "' & $errorMessage & '" on attempt ' & $i & ' of ' & $MAX_ATTEMPTS & '.' & @CRLF)
+			Else
+				Debug('The transfer to machining center process succeeded on attempt ' & $i & ' of ' & $MAX_ATTEMPTS & '.' & @CRLF)
+			EndIf
+		Until($i < $MAX_ATTEMPTS)
+		Debug("Transfer to machining center process done." & @CRLF)
+	Else
+		$errorMessage = $temp
 	EndIf
-	Local $reviewRunsWindow = $temp
-	Debug("Optimisation process done." & @CRLF)
 
-	; Transfer to machining center
-	Debug("Transfer to machining center process starting" & @CRLF)
-	Local $MAX_ATTEMPTS = 5
-	Local $i = 0
-	Do
-		$i += 1
-		Local $errorMessage = CutRite_TransferToMachiningCenter($reviewRunsWindow)
-		If @error Then
-			Debug('The transfer to machining center process returned error message "' & $errorMessage & '" on attempt ' & $i & ' of ' & $MAX_ATTEMPTS & '.' & @CRLF)
-		Else
-			Debug('The transfer to machining center process succeeded on attempt ' & $i & ' of ' & $MAX_ATTEMPTS & '.' & @CRLF)
-		EndIf
-	Until($i < $MAX_ATTEMPTS)
-	Debug("Transfer to machining center process done." & @CRLF)
 
-	; Close the "Review runs" window.
+	KillWindow($partListWindow)
 	KillWindow($reviewRunsWindow)
-	Debug('Closed window with handle ' & $reviewRunsWindow & '.' & @CRLF)
-
-	; Exit script
-	Debug(@ScriptName & ' completed successfuly.' & @CRLF)
-	ExitWithCodeAndMessage(0, ($errorMessage <> "") ? $errorMessage : "OK")
+	KillProcess($processId)
+	If $errorMessage <> "" And $errorMessage <> Null Then
+		ExitWithCodeAndMessage(5, $errorMessage)
+	ElseIf WinExists($partListWindow) Then
+		Debug('Could not close window with handle ' & $partListWindow & '.' & @CRLF)
+		ExitWithCodeAndMessage(3, Null, 'Could not close window with handle ' & $partListWindow & '.')
+	ElseIf WinExists($reviewRunsWindow) Then
+		Debug('Could not close window with handle ' & $reviewRunsWindow & '.' & @CRLF)
+		ExitWithCodeAndMessage(3, Null, 'Could not close window with handle ' & $reviewRunsWindow & '.')
+	ElseIf ProcessExists($processID) Then
+		Debug('Could not terminate process with id ' & $processID & '.' & @CRLF)
+		ExitWithCodeAndMessage(4, Null, 'Could not terminate process with id ' & $processID & '.')
+	Else
+		; Quitter le script
+		Debug(@ScriptName & ' completed successfuly.' & @CRLF)
+		ExitWithCodeAndMessage(0, "OK")
+	EndIf
 EndFunc

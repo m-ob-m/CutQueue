@@ -134,7 +134,7 @@ namespace CutQueue
 
             // Copie des fichiers .ctt, .pc2 et images JPEG vers serveur
             Uri sourceDirectoryUri = new Uri(new Uri(new Uri(ConfigINI.GetInstance().Items["FABRIDOR"].ToString()), "SYSTEM_DATA\\"), "DATA\\");
-            Uri destinationDirectoryUri = new Uri(new Uri(ConfigINI.GetInstance().Items["V200"].ToString()), batchName);
+            Uri destinationDirectoryUri = new Uri(new Uri(ConfigINI.GetInstance().Items["V200"].ToString()), batchName + "\\");
             Directory.CreateDirectory(destinationDirectoryUri.LocalPath);
 
             List<Tuple<Uri, Uri>> filesToCopy = new List<Tuple<Uri, Uri>>();

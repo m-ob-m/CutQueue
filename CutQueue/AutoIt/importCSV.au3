@@ -10,57 +10,64 @@
 ;   Ouvre l'importateur de piece et importe le fichier selon le nom mis en argument
 ;
 
-; CSV à importer selon la valeur en argument
-$toImport = "MERC_1ER_FEV_MDF_34_DOS_ERABLE.txt"	; Pour fin de tests et debug seulement. Doit être changé par argument
+#include <File.au3>
+#include "CutRite.au3"
+#include "toolbox.au3"
 
-if $cmdLine[0] > 0 Then ; Chargement de l'argument en ligne de commande
-   $toImport = $cmdLine[1]
-EndIf
+AutoItSetOption("WinDetectHiddenText", 1)
+AutoItSetOption("MustDeclareVars", 1)
+AutoItSetOption("WinTitleMatchMode", $OPT_MATCHEXACT)
 
-; Il est nécessaire de faire les appels à partir de ce répertoire
-FileChangeDir("c:\V90\FABRIDOR")
+; Enables log files.
+Local $DEBUG = True
 
-; Ouvre l'importateur de CSV de CutRite
-Run("c:\V90\import.exe /PARTS")
-;RunAs("microvellum","cuisineideale.cabcor","Cuisine123",$RUN_LOGON_INHERIT ,"c:\V90\import.exe /PARTS", "c:\V90\FABRIDOR")
+Main()
 
-; Attend que l'importateur soit ouvert
-WinWait("[TITLE:Import - parts]")
+Func Main()
+	Local $partListFileName = ($cmdLine[0] > 0) ? $cmdLine[1] : "71999P.txt" ; CSV à importer selon la valeur en argument.
+	Local $temp
+	Debug(@ScriptName & ' started with batch "' & _PathSplit($partListFileName, $temp, $temp, $temp, $temp)[3] & '".' & @CRLF)
 
-; Renommer la fenetre car les prochaines fenetre ont le meme nom
-WinSetTitle("[TITLE:Import - parts]", "", "CSVImportMain")
+	Local $attemptCounter = 1
+	Local Const $MAX_ATTEMPTS = 5
+	Local $processID = Null
+	Local $mainWindow = 0
+	While Not $mainWindow
+		Local $temp = CutRite_StartImportExe()
+		$processID = $temp[0]
+		$mainWindow = $temp[1]
+		If @error <> 0 Then
+			KillWindowAndProcess($mainWindow, $processID)
+			Debug('The program failed to produce the expected main window. Process ' & $processID & ' was terminated.' & @CRLF)
+			If $attemptCounter <= $MAX_ATTEMPTS Then
+				Debug('Retrying...' & @CRLF)
+				$attemptCounter += 1
+				ContinueLoop
+			Else
+				Debug(@ScriptName & ' failed.' & @CRLF)
+				ExitWithCodeAndMessage(1, Null, 'The main window failed to appear ' & $MAX_ATTEMPTS & " " & (($MAX_ATTEMPTS <= 1) ? "time" : "times in a row") & ".")
+			EndIf
+		EndIf
+	WEnd
 
-; Prend le controle de la liste des CSV et choisi celui à importer
-$hList = ControlGetHandle("[TITLE:CSVImportMain]", "", "SysListView321")
-For $i = 0 To _GUICtrlListView_GetItemCount($hList) - 1
-   if _GUICtrlListView_GetItemText($hList,$i) = $toImport Then
-	  _GUICtrlListView_SetItemSelected ($hList,$i)
-   EndIf
-Next
+	Local $errorMessage = CutRite_ImportPartsFromCSV($mainWindow, $partListFileName)
+	If @error Then
+		Debug(@ScriptName & ' failed.' & @CRLF)
+		ExitWithCodeAndMessage(2, Null, $errorMessage)
+	EndIf
 
-; Click sur le bouton d'importation
-WinActivate("[TITLE:CSVImportMain]")
-ControlClick("[TITLE:CSVImportMain]", "", "ToolbarWindow321", "left",1 ,74,25)
-Sleep(100)
-
-; Attendre la fenetre de confirmation (si confirmation il y a)
-WinWait("[TITLE:Import]", "Replace existing data", 1)
-
-; Si confirmation nécessaire
-IF WinExists("[TITLE:Import]", "Replace existing data") Then
-   ControlClick("[TITLE:Import]", "Replace existing data", "Button3", "left",1 ,45,13)	;Clique sur le bouton Oui
-EndIf
-
-; Attendre que la fenetre confirmation d'ouverture arrive
-WinWait("[TITLE:Import - parts]", "Import finished")
-
-;Cliquer sur le bouton Non pour ne pas ouvrir le visualiseur
-ControlClick("[TITLE:Import - parts]", "Import finished", "Button2", "left",1 ,40,18)
-
-; Fermeture de la fenetre d'importation
-Sleep(500)
-WinKill("[TITLE:CSVImportMain]")
-
-; Sortie
-Exit
-
+	; Fermer la fenêtre principale.
+	KillWindowAndProcess($mainWindow, $processID)
+	Sleep(500)
+	If WinExists($mainWindow) Then
+		Debug('Could not close window with handle ' & $mainWindow & '.' & @CRLF)
+		ExitWithCodeAndMessage(3, Null, 'Could not close window with handle ' & $mainWindow & '.')
+	ElseIf ProcessExists($processID) Then
+		Debug('Could not terminate process with id ' & $processID & '.' & @CRLF)
+		ExitWithCodeAndMessage(4, Null, 'Could not terminate process with id ' & $processID & '.')
+	Else
+		; Quitter le script
+		Debug(@ScriptName & ' completed successfuly.' & @CRLF)
+		ExitWithCodeAndMessage(0)
+	EndIf
+EndFunc

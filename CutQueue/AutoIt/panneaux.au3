@@ -15,7 +15,9 @@
 
 AutoItSetOption("WinDetectHiddenText", 1)
 AutoItSetOption("MustDeclareVars", 1)
+AutoItSetOption("WinTitleMatchMode", $OPT_MATCHEXACT)
 
+; Enables log files.
 Local $DEBUG = True
 
 Main()
@@ -33,7 +35,7 @@ Func Main()
 		Local $temp = CutRite_StartPanelExe($partListFileName)
 		$processID = $temp[0]
 		$mainWindow = $temp[1]
-		If @error <> 0 Then 
+		If @error <> 0 Then
 			ProcessClose($processID)
 			Debug('The program failed to produce the expected main window. Process ' & $processID & ' was terminated.' & @CRLF)
 			If $attemptCounter <= $MAX_ATTEMPTS Then
@@ -54,10 +56,16 @@ Func Main()
 	EndIf
 
 	; Fermer la fenêtre principale.
-	KillWindow($mainwindow)
-	Debug('Closed window with handle ' & $mainWindow & '.' & @CRLF)
-
-	; Quitter le script
-	Debug(@ScriptName & ' completed successfuly.' & @CRLF)
-	ExitWithCodeAndMessage(0)
+	KillWindowAndProcess($mainWindow, $processID)
+	If WinExists($mainWindow) Then
+		Debug('Could not close window with handle ' & $mainWindow & '.' & @CRLF)
+		ExitWithCodeAndMessage(3, Null, 'Could not close window with handle ' & $mainWindow & '.')
+	ElseIf ProcessExists($processID) Then
+		Debug('Could not terminate process with id ' & $processID & '.' & @CRLF)
+		ExitWithCodeAndMessage(4, Null, 'Could not terminate process with id ' & $processID & '.')
+	Else
+		; Quitter le script
+		Debug(@ScriptName & ' completed successfuly.' & @CRLF)
+		ExitWithCodeAndMessage(0)
+	EndIf
 EndFunc

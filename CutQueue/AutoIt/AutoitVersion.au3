@@ -1,0 +1,1 @@
+MsgBox(0, "Version", @AutoItVersion)

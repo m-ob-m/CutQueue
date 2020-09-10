@@ -23,9 +23,19 @@ Func ExitWithCodeAndMessage($code = 0, $ouputMessage = Null, $errorMessage = Nul
 	Exit $code
 EndFunc
 
-Func KillWindow($window)
-	While WinExists($window)
-		Sleep(500)
-		WinKill($window)
-	WEnd
+Func KillWindowAndProcess($windowHandle, $processId)
+	KillWindow($windowHandle)
+	KillProcess($processId)
+EndFunc
+
+Func KillWindow($windowHandle)
+	If WinExists($windowHandle) Then
+		WinKill($windowHandle)
+	EndIf
+EndFunc
+
+Func KillProcess($processId)
+	If ProcessExists($processId) Then
+		ProcessClose($processId)
+	EndIf
 EndFunc

@@ -21,9 +21,8 @@ EndIf
 ; Convertir l'image et enlever le gris (modulate = "Brighten")
 ; Il est important de conserver l'ordre des arguments. Donc resize modulate sharpen
 RunWait( _
-    '"C:\ImageMagick\magick.exe" "convert" "C:\V90\FABRIDOR\SYSTEM_DATA\DATA\' & $wmf & '" "-resize" "50%"' _
-    & ' "-modulate" "140%" "-sharpen" "0x2" "-define" "teim:background-color=srgb(255,255,255)" "-trim"' _
-    & ' "C:\V90\FABRIDOR\SYSTEM_DATA\DATA\' & $jpg & '"', _
+    '"C:\ImageMagick\magick.exe" "convert" "' & $wmf & '" "-resize" "50%" "-modulate" "140%" "-sharpen" "0x2" "-define" ' & _
+	'"teim:background-color=srgb(255,255,255)" "-trim" "' & $jpg & '"', _
     "C:\ImageMagick\", _
     @SW_HIDE _
 )

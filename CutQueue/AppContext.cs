@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using CutQueue.Logging;
 using System.IO;
 using System.Collections.Generic;
+using CutQueue.Lib;
 
 /**
  * \name		AppContext
@@ -32,9 +33,9 @@ namespace CutQueue
         private ToolStripMenuItem SyncMenuItem;
         private ToolStripMenuItem UpdateImagesMenuItem;
 
-        private Timer _t;   // Timer de synchronisation
-        private readonly ImportCSV _csv;
-        private readonly Optimize _optimize;
+        private Timer timer;   // Timer de synchronisation
+        private readonly ImportCSV csv;
+        private readonly Optimize optimize;
 
         /// <summary>
         /// Creates the program
@@ -46,16 +47,16 @@ namespace CutQueue
             TrayIcon.Visible = true;
 
             // Synchronization timer
-            _t = new Timer
+            timer = new Timer
             {
-                Interval = int.Parse(ConfigINI.GetInstance().Items["TIMER"].ToString())
+                Interval = int.Parse(ConfigINI.Items["TIMER"].ToString())
             };
-            _t.Tick += T_Tick;
-            _t.Start();
+            timer.Tick += Tick;
+            timer.Start();
 
             // Synchroniztion classes
-            _csv = new ImportCSV();
-            _optimize = new Optimize();
+            csv = new ImportCSV();
+            optimize = new Optimize();
         }
 
         /// <summary>
@@ -114,9 +115,9 @@ namespace CutQueue
         /// </summary>
         /// <param name="sender">The element that triggered the event</param>
         /// <param name="e">The arguments of the event</param>
-        private void T_Tick(object sender, EventArgs e)
+        private void Tick(object sender, EventArgs e)
         {
-            Task temp = DoSync();
+            _ = DoSync();
         }
 
         /// <summary>
@@ -128,26 +129,24 @@ namespace CutQueue
         {
             
             string batchName = Interaction.InputBox("Entrer le nom de la batch pour laquelle il faut mettre les images à jour.", "Mise à jour des images d'une batch", null);
-            
+
             // Convertir les fichiers WMF en JPG
-            _optimize.ConvertBatchWmfToJpg(batchName, out List<Tuple<Uri, Uri>> wmfToJpgConversionResults);
+            List<(Uri wmfFileUri, Uri jpgFileUri)> wmfToJpgConversionResults = optimize.ConvertBatchWmfToJpg(batchName);
 
             // Copie des fichiers .ctt, .pc2 et images JPEG vers serveur
-            Uri sourceDirectoryUri = new Uri(new Uri(new Uri(ConfigINI.GetInstance().Items["FABRIDOR"].ToString()), "SYSTEM_DATA\\"), "DATA\\");
-            Uri destinationDirectoryUri = new Uri(new Uri(ConfigINI.GetInstance().Items["V200"].ToString()), batchName + "\\");
+            Uri destinationDirectoryUri = new Uri(new Uri(CutRiteConfigurationReader.Items["MACHINING_CENTER_TRANSFER_PATTERNS_PATH"].ToString()), $"{batchName}/");
             Directory.CreateDirectory(destinationDirectoryUri.LocalPath);
 
-            List<Tuple<Uri, Uri>> filesToCopy = new List<Tuple<Uri, Uri>>();
-            foreach (Tuple<Uri, Uri> wmfToJpgConversionResult in wmfToJpgConversionResults)
+            List<(Uri sourceFileUri, Uri destinationFileUri)> filesToCopy = new List<(Uri sourceFileUri, Uri destinationFileUri)>();
+            foreach ((_, Uri jpgFileUri) in wmfToJpgConversionResults)
             {
-                filesToCopy.Add(
-                    new Tuple<Uri, Uri>(
-                        wmfToJpgConversionResult.Item2,
-                        new Uri(destinationDirectoryUri, Path.GetFileName(wmfToJpgConversionResult.Item2.ToString()))
-                    )
-                );
+                filesToCopy.Add((
+                        jpgFileUri,
+                        new Uri(destinationDirectoryUri, Path.GetFileName(jpgFileUri.LocalPath))
+                ));
             }
-            _optimize.CopyFiles(filesToCopy);
+            
+            optimize.CopyFiles(filesToCopy);
         }
 
         /// <summary>
@@ -158,8 +157,8 @@ namespace CutQueue
             try
             {
                 await LogInToFabplan();
-                var temp = Task.Factory.StartNew(async () => await _csv.DoSync());
-                temp = Task.Factory.StartNew(async () => await _optimize.DoOptimize());
+                _ = Task.Factory.StartNew(async () => await csv.DoSync());
+                _ = Task.Factory.StartNew(async () => await optimize.DoOptimize());
             }
             catch (Exception e)
             {
@@ -231,15 +230,15 @@ namespace CutQueue
         {
             UriBuilder builder = new UriBuilder()
             {
-                Host = ConfigINI.GetInstance().Items["HOST_NAME"].ToString(),
-                Path = ConfigINI.GetInstance().Items["LOGIN_URL"].ToString(),
+                Host = ConfigINI.Items["FABPLAN_HOST_NAME"].ToString(),
+                Path = ConfigINI.Items["FABPLAN_LOGIN_URL"].ToString(),
                 Port = -1,
                 Scheme = "http"
             };
 
             dynamic credentials = new {
-                username = ConfigINI.GetInstance().Items["FABPLAN_USERNAME"],
-                password = ConfigINI.GetInstance().Items["FABPLAN_PASSWORD"]
+                username = ConfigINI.Items["FABPLAN_USER_NAME"],
+                password = ConfigINI.Items["FABPLAN_PASSWORD"]
             };
 
             try
@@ -256,8 +255,8 @@ namespace CutQueue
         {
             UriBuilder builder = new UriBuilder()
             {
-                Host = ConfigINI.GetInstance().Items["HOST_NAME"].ToString(),
-                Path = ConfigINI.GetInstance().Items["LOGOUT_URL"].ToString(),
+                Host = ConfigINI.Items["FABPLAN_HOST_NAME"].ToString(),
+                Path = ConfigINI.Items["FABPLAN_LOGOUT_URL"].ToString(),
                 Port = -1,
                 Scheme = "http"
             };

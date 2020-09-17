@@ -132,7 +132,8 @@ Func CutRite_ImportPartsFromCSV($mainWindow, $partListFileName)
 					WinKill($mainWindow)
 					Return SetError(1, 0, "The desired batch's import CSV file was not found.")
 				EndIf
-				_GUICtrlListView_SetItemSelected($importPartsListView, $i)
+				_GUICtrlListView_SetItemSelected($importPartsListView, -1, False, True)
+				_GUICtrlListView_SetItemSelected($importPartsListView, $i, True, True)
 				If _GUICtrlListView_GetItemSelected($importPartsListView, $i) Then
 					Debug( _
 						'Selected an item with text "' & $partListFileName & '" at index ' & $i & ' of the listview with handle ' & $importPartsListView & '.' & @CRLF _

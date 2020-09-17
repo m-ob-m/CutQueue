@@ -1,4 +1,5 @@
-﻿using CutQueue.Lib.Fabplan;
+﻿using CutQueue.Lib;
+using CutQueue.Lib.Fabplan;
 using CutQueue.Logging;
 using Newtonsoft.Json.Linq;
 using System;
@@ -6,7 +7,10 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 
 namespace CutQueue
 {
@@ -96,13 +100,13 @@ namespace CutQueue
         {
             UriBuilder builder = new UriBuilder()
             {
-                Host = ConfigINI.GetInstance().Items["HOST_NAME"].ToString(),
-                Path = ConfigINI.GetInstance().Items["GET_NEXT_BATCH_TO_OPTIMIZE_URL"].ToString(),
+                Host = ConfigINI.Items["FABPLAN_HOST_NAME"].ToString(),
+                Path = ConfigINI.Items["FABPLAN_GET_NEXT_BATCH_TO_OPTIMIZE_URL"].ToString(),
                 Port = -1,
                 Scheme = "http"
             };
 
-            JObject rawBatch = null;
+            JObject rawBatch;
             try
             {
                 rawBatch = await FabplanHttpRequest.Get(builder.ToString());
@@ -156,7 +160,7 @@ namespace CutQueue
         /// <param name="procName">The filepath of the process to execute</param>
         /// <param name="arguments">A string of arguments used to start the process</param>
         /// <returns>The process' output</returns>
-        private string ExecuteProcess(string procName, string arguments)
+        private (int exitCode, string standardOutput) ExecuteProcess(string procName, string arguments)
         {
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo
             {
@@ -173,11 +177,12 @@ namespace CutQueue
             };
             process.Start();
 
-            string msg = process.StandardOutput.ReadToEnd();
+            string standardOutput = process.StandardOutput.ReadToEnd();
+            
 
             process.WaitForExit();
 
-            return msg;
+            return (process.ExitCode, standardOutput);
         }
 
         /// <summary>
@@ -190,46 +195,56 @@ namespace CutQueue
             // Changer l'état pour en cours (P pour In Progress)
             await UpdateEtatMpr(((dynamic)batch).id, 'C');
 
-            string toImport = ((dynamic)batch).name + ".txt";      // Nom du fichier CSV
+            string batchName = ((dynamic)batch).name;      // Nom du fichier CSV
+
+            int exitCode;
+            string standardOutput;
+
+            DeletePartListFile(batchName);
 
             // Import du CSV
-            ExecuteProcess("autoit\\importCSV.exe", toImport);
+            (exitCode, standardOutput) = ExecuteProcess(new Uri(new Uri($"{Application.StartupPath}/"), "autoit/importCSV.exe").LocalPath, $"\"{batchName}.txt\"");
+            if (exitCode != 0)
+            {
+                throw new Exception(standardOutput);
+            }
 
             // Génération du fichier des panneaux (.brd)
-            ExecuteProcess("autoit\\panneaux.exe ", toImport);
+            (exitCode, standardOutput) = ExecuteProcess(new Uri(new Uri($"{Application.StartupPath}/"), "autoit/panneaux.exe").LocalPath, $"\"{batchName}.txt\"");
+            if (exitCode != 0)
+            {
+                throw new Exception(standardOutput);
+            }
 
             // Modification du fichier .brd pour avoir les bons panneaux
             ModifyPanneaux(((dynamic)batch).pannels, ((dynamic)batch).name);
 
             // Optimisation
-            string msg = ExecuteProcess("autoit\\optimise.exe", toImport);
-            if (msg != "OK")
-            {	
-                // Le script retourne OK seulement quand tout a bien été
-                throw new ArgumentException(msg);
+            (exitCode, standardOutput) = ExecuteProcess(new Uri(new Uri($"{Application.StartupPath}/"), "autoit/optimise.exe").LocalPath, $"\"{batchName}.txt\"");
+            if (exitCode != 0)
+            {
+                throw new Exception(standardOutput);
             }
 
             // Convertir les fichiers WMF en JPG
-            ConvertBatchWmfToJpg(((dynamic)batch).name, out List<Tuple<Uri, Uri>> wmfToJpgConversionResults);
+            List<(Uri wmfFileUri, Uri jpegFileUri)> wmfToJpgConversionResults = ConvertBatchWmfToJpg(((dynamic)batch).name);
 
             // Copie des fichiers .ctt, .pc2 et images JPEG vers serveur
-            Uri sourceDirectoryUri = new Uri(new Uri(new Uri(ConfigINI.GetInstance().Items["FABRIDOR"].ToString()), "SYSTEM_DATA\\"), "DATA\\");
-            Uri destinationDirectoryUri = new Uri(new Uri(ConfigINI.GetInstance().Items["V200"].ToString()), (string)((dynamic)batch).name + "\\"); 
+            Uri sourceDirectoryUri = new Uri(CutRiteConfigurationReader.Items["SYSTEM_DATA_PATH"].ToString());
+            Uri destinationDirectoryUri = new Uri(new Uri(CutRiteConfigurationReader.Items["MACHINING_CENTER_TRANSFER_PATTERNS_PATH"].ToString()), $"{batchName}/"); 
             Directory.CreateDirectory(destinationDirectoryUri.LocalPath);
 
-            List<Tuple<Uri, Uri>> filesToCopy = new List<Tuple<Uri, Uri>>
+            List<(Uri sourceFileUri, Uri destinationFileUri)> filesToCopy = new List<(Uri sourceFileUri, Uri destinationFileUri)>
             {
-                new Tuple<Uri, Uri>(new Uri(sourceDirectoryUri, ((dynamic)batch).name + ".ctt"), new Uri(destinationDirectoryUri, ((dynamic)batch).name + ".ctt")),
-                new Tuple<Uri, Uri>(new Uri(sourceDirectoryUri, ((dynamic)batch).name + ".pc2"), new Uri(destinationDirectoryUri, ((dynamic)batch).name + ".pc2"))
+                (new Uri(sourceDirectoryUri, $"{batchName}.ctt"), new Uri(destinationDirectoryUri, $"{batchName}.ctt")),
+                (new Uri(sourceDirectoryUri, $"{batchName}.pc2"), new Uri(destinationDirectoryUri, $"{batchName}.pc2"))
             };
-            foreach (Tuple<Uri, Uri> wmfToJpgConversionResult in wmfToJpgConversionResults)
+            foreach ((Uri _, Uri jpegFileUri) in wmfToJpgConversionResults)
             {
-                filesToCopy.Add(
-                    new Tuple<Uri, Uri>(
-                        wmfToJpgConversionResult.Item2, 
-                        new Uri(destinationDirectoryUri, Path.GetFileName(wmfToJpgConversionResult.Item2.ToString()))
-                    )
-                );
+                filesToCopy.Add((
+                    jpegFileUri, 
+                    new Uri(destinationDirectoryUri, Path.GetFileName(jpegFileUri.LocalPath))
+                ));
             }
             CopyFiles(filesToCopy);
 
@@ -241,28 +256,61 @@ namespace CutQueue
         }
 
         /// <summary>
+        /// Deletes the part list file of this batch. In doing so, the importation process is simplified somewhat. 
+        /// Also, sending an erroneous batch to the machining center is a bit harder.
+        /// </summary>
+        /// <param name="batchName"> The name of the batch to process. </param>
+        private void DeletePartListFile(string batchName)
+        {
+            string fileName = $"{batchName}.prl";
+            string directoryPath = CutRiteConfigurationReader.Items["SYSTEM_PART_LIST_PATH"].ToString();
+            string fullFilePath = directoryPath + fileName;
+
+            if (File.Exists(fullFilePath))
+            {
+                using (FileSystemWatcher fileSystemWatcher = new FileSystemWatcher(directoryPath, fileName))
+                using (ManualResetEventSlim threadSynchronizationEvent = new ManualResetEventSlim())
+                {
+                    fileSystemWatcher.EnableRaisingEvents = true;
+                    fileSystemWatcher.Deleted += (object sender, FileSystemEventArgs e) => { threadSynchronizationEvent.Set(); };
+                    File.Delete(fullFilePath);
+
+                    int maximumWaitTime = 5;
+                    threadSynchronizationEvent.Wait(maximumWaitTime * 1000);
+                    if (!threadSynchronizationEvent.IsSet)
+                    {
+                        throw new Exception($"Deleting part list file \"{fullFilePath}\" took more than {maximumWaitTime} seconds.");
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Converts a batch's wmf image files to jpg.
         /// </summary>
         /// <param name="batchName">The batch name.</param>
-        /// <param name="wmfToJpgConversionResults">
-        /// A list returned in the following form [wmfFileUri_1 => jpgFileUri_1, wmfFileUri_2 => jpgFileUri_2, ..., wmfFileUri_n => jpgFileUri_n].
         /// </param>
-        public void ConvertBatchWmfToJpg(string batchName, out List<Tuple<Uri, Uri>> wmfToJpgConversionResults)
+        public List<(Uri wmfFileUri, Uri jpegFileUri)> ConvertBatchWmfToJpg(string batchName)
         {
-            wmfToJpgConversionResults = new List<Tuple<Uri, Uri>>();
-            Uri baseUri = new Uri(ConfigINI.GetInstance().Items["FABRIDOR"] + "SYSTEM_DATA\\DATA\\");
+            List<(Uri wmfFileUri, Uri jpegFileUri)>  wmfToJpgConversionResults = new List<(Uri wmfFileUri, Uri jpegFileUri)>();
             for (int i = 1; i < 9999; i++)
             {
-                Uri wmfFileUri = new Uri(baseUri, "$" + batchName + FillZero(i, 4) + "$.wmf");
+                Uri wmfFileUri = new Uri(
+                    new Uri(CutRiteConfigurationReader.Items["SYSTEM_DATA_PATH"].ToString()), 
+                    "$" + batchName + FillZero(i, 4) + "$.wmf"
+                );
 
                 if (File.Exists(wmfFileUri.LocalPath))
                 {
                     // Conversion WMF vers JPG
-                    Uri jpgFileUri = new Uri(baseUri, batchName + FillZero(i, 4) + ".jpg");
-                    wmfToJpgConversionResults.Add(new Tuple<Uri, Uri>(wmfFileUri, jpgFileUri));
+                    Uri jpgFileUri = new Uri(
+                        new Uri(CutRiteConfigurationReader.Items["SYSTEM_DATA_PATH"].ToString()), 
+                        batchName + FillZero(i, 4) + ".jpg"
+                    );
+                    wmfToJpgConversionResults.Add((wmfFileUri, jpgFileUri));
                     ExecuteProcess(
-                        "autoit\\imagemagick.exe", 
-                        Path.GetFileName(wmfFileUri.LocalPath) + " " + Path.GetFileName(jpgFileUri.LocalPath)
+                        new Uri(new Uri($"{Application.StartupPath}/"), "autoit/imagemagick.exe").LocalPath, 
+                        $"\"{wmfFileUri.LocalPath}\" \"{jpgFileUri.LocalPath}\""
                     );
                 }
                 else
@@ -270,13 +318,15 @@ namespace CutQueue
                     break;
                 }
             }
+
+            return wmfToJpgConversionResults;
         }
 
-        public void CopyFiles(List<Tuple<Uri, Uri>> filesToCopy)
+        public void CopyFiles(List<(Uri sourceFileUri, Uri destinationFileUri)> filesToCopy)
         {
-            foreach (Tuple<Uri, Uri> fileToCopy in filesToCopy)
+            foreach ((Uri sourceFileUri, Uri destinationFileUri) in filesToCopy)
             {
-                File.Copy(fileToCopy.Item1.LocalPath, fileToCopy.Item2.LocalPath, true);
+                File.Copy(sourceFileUri.LocalPath, destinationFileUri.LocalPath, true);
             }
         }
 
@@ -291,8 +341,8 @@ namespace CutQueue
         {
             UriBuilder builder = new UriBuilder()
             {
-                Host = ConfigINI.GetInstance().Items["HOST_NAME"].ToString(),
-                Path = ConfigINI.GetInstance().Items["SET_MPR_STATUS_URL"].ToString(),
+                Host = ConfigINI.Items["FABPLAN_HOST_NAME"].ToString(),
+                Path = ConfigINI.Items["FABPLAN_SET_MPR_STATUS_URL"].ToString(),
                 Port = -1,
                 Scheme = "http"
             };
@@ -308,7 +358,7 @@ namespace CutQueue
 
             if (comments != null)
             {
-                builder.Path = ConfigINI.GetInstance().Items["SET_COMMENTS_URL"].ToString();
+                builder.Path = ConfigINI.Items["FABPLAN_SET_COMMENTS_URL"].ToString();
                 try
                 {
                     await FabplanHttpRequest.Post(builder.ToString(), new { id, comments });
@@ -325,13 +375,13 @@ namespace CutQueue
         /// Modifies pannels in the brd file of the current batch
         /// </summary>
         /// <param name="panneaux">The pannel code to use with the current batch</param>
-        /// <param name="nom_batch">The name of the batch</param>
-        private void ModifyPanneaux(string panneaux, string nom_batch)
+        /// <param name="batchName">The name of the batch</param>
+        private void ModifyPanneaux(string panneaux, string batchName)
         {
             string[] pans = panneaux.Split(',');
-            string brdPath = ConfigINI.GetInstance().Items["FABRIDOR"] + "\\SYSTEM_DATA\\DATA\\" + nom_batch + ".brd";
+            Uri boardFileUri = new Uri(new Uri(CutRiteConfigurationReader.Items["SYSTEM_DATA_PATH"].ToString()), $"{batchName}.brd");
 
-            string[] brdLines = File.ReadAllText(brdPath).Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            string[] brdLines = File.ReadAllText(boardFileUri.LocalPath).Split(new string[] { "\r\n" }, StringSplitOptions.None);
 
             string brd = brdLines[0] + "\r\n" + brdLines[1] + "\r\n" + brdLines[2] + "\r\n";
 
@@ -353,7 +403,7 @@ namespace CutQueue
                 }
             }
 
-            File.WriteAllText(brdPath, brd);
+            File.WriteAllText(boardFileUri.LocalPath, brd);
         }
 
         /// <summary>

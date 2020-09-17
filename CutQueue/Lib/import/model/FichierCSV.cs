@@ -140,8 +140,8 @@ namespace CutQueue.Lib.import.model
         {
             UriBuilder builder = new UriBuilder()
             {
-                Host = ConfigINI.GetInstance().Items["HOST_NAME"].ToString(),
-                Path = ConfigINI.GetInstance().Items["CREATE_JOB_URL"].ToString(),
+                Host = ConfigINI.Items["FABPLAN_HOST_NAME"].ToString(),
+                Path = ConfigINI.Items["FABPLAN_CREATE_JOB_URL"].ToString(),
                 Port = -1,
                 Scheme = "http"
             };
@@ -169,8 +169,8 @@ namespace CutQueue.Lib.import.model
         {
             UriBuilder builder = new UriBuilder()
             {
-                Host = ConfigINI.GetInstance().Items["HOST_NAME"].ToString(),
-                Path = ConfigINI.GetInstance().Items["DELETE_JOB_URL"].ToString(),
+                Host = ConfigINI.Items["FABPLAN_HOST_NAME"].ToString(),
+                Path = ConfigINI.Items["FABPLAN_DELETE_JOB_URL"].ToString(),
                 Port = -1,
                 Scheme = "http"
             };
@@ -205,8 +205,8 @@ namespace CutQueue.Lib.import.model
         {
             UriBuilder builder = new UriBuilder()
             {
-                Host = ConfigINI.GetInstance().Items["HOST_NAME"].ToString(),
-                Path = ConfigINI.GetInstance().Items["JOB_EXISTS_URL"].ToString(),
+                Host = ConfigINI.Items["FABPLAN_HOST_NAME"].ToString(),
+                Path = ConfigINI.Items["FABPLAN_JOB_EXISTS_URL"].ToString(),
                 Port = -1,
                 Scheme = "http"
             };
@@ -233,8 +233,8 @@ namespace CutQueue.Lib.import.model
         {
             UriBuilder builder = new UriBuilder()
             {
-                Host = ConfigINI.GetInstance().Items["HOST_NAME"].ToString(),
-                Path = ConfigINI.GetInstance().Items["JOB_IS_LINKED_URL"].ToString(),
+                Host = ConfigINI.Items["FABPLAN_HOST_NAME"].ToString(),
+                Path = ConfigINI.Items["FABPLAN_JOB_IS_LINKED_URL"].ToString(),
                 Port = -1,
                 Scheme = "http"
             };

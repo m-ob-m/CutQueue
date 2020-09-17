@@ -45,7 +45,7 @@ Func Main()
 				ContinueLoop
 			Else
 				Debug(@ScriptName & ' failed.' & @CRLF)
-				ExitWithCodeAndMessage(1, Null, 'The main window failed to appear ' & $MAX_ATTEMPTS & " " & (($MAX_ATTEMPTS <= 1) ?  "time" : "times in a row") & ".")
+				ExitWithCodeAndMessage(1, 'The main window failed to appear ' & $MAX_ATTEMPTS & " " & (($MAX_ATTEMPTS <= 1) ?  "time" : "times in a row") & ".")
 			EndIf
 		EndIf
 	WEnd
@@ -85,16 +85,16 @@ Func Main()
 		ExitWithCodeAndMessage(5, $errorMessage)
 	ElseIf WinExists($partListWindow) Then
 		Debug('Could not close window with handle ' & $partListWindow & '.' & @CRLF)
-		ExitWithCodeAndMessage(3, Null, 'Could not close window with handle ' & $partListWindow & '.')
+		ExitWithCodeAndMessage(3, 'Could not close window with handle ' & $partListWindow & '.')
 	ElseIf WinExists($reviewRunsWindow) Then
 		Debug('Could not close window with handle ' & $reviewRunsWindow & '.' & @CRLF)
-		ExitWithCodeAndMessage(3, Null, 'Could not close window with handle ' & $reviewRunsWindow & '.')
+		ExitWithCodeAndMessage(2, 'Could not close window with handle ' & $reviewRunsWindow & '.')
 	ElseIf ProcessExists($processID) Then
 		Debug('Could not terminate process with id ' & $processID & '.' & @CRLF)
-		ExitWithCodeAndMessage(4, Null, 'Could not terminate process with id ' & $processID & '.')
+		ExitWithCodeAndMessage(4, 'Could not terminate process with id ' & $processID & '.')
 	Else
 		; Quitter le script
 		Debug(@ScriptName & ' completed successfuly.' & @CRLF)
-		ExitWithCodeAndMessage(0, "OK")
+		ExitWithCodeAndMessage(0)
 	EndIf
 EndFunc

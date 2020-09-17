@@ -63,11 +63,11 @@ namespace CutQueue
         /// <returns>The UNIX timestamp of the last update date of the importator module in Fabplan</returns>
         private async Task<int> ImportAllCSV(int highestDate)
         {
-            string userName = ConfigINI.GetInstance().Items["SIA_username"].ToString();
-            string password = ConfigINI.GetInstance().Items["SIA_password"].ToString();
+            string userName = ConfigINI.Items["SIA_USER_NAME"].ToString();
+            string password = ConfigINI.Items["SIA_PASSWORD"].ToString();
             using (new Impersonation(userName, "", password))
             {
-                FileInfo[] files = new DirectoryInfo(ConfigINI.GetInstance().Items["CSV"].ToString())
+                FileInfo[] files = new DirectoryInfo(ConfigINI.Items["SIA_CSV_PATH"].ToString())
                     .GetFiles()
                     .Where(p => (int)p.LastWriteTimeUtc.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds > highestDate)
                     .OrderBy(p => p.LastWriteTimeUtc).ToArray();
@@ -91,13 +91,13 @@ namespace CutQueue
         {
             UriBuilder builder = new UriBuilder()
             {
-                Host = ConfigINI.GetInstance().Items["HOST_NAME"].ToString(),
-                Path = ConfigINI.GetInstance().Items["GET_LAST_UPDATE_DATE_URL"].ToString(),
+                Host = ConfigINI.Items["FABPLAN_HOST_NAME"].ToString(),
+                Path = ConfigINI.Items["FABPLAN_GET_LAST_UPDATE_DATE_URL"].ToString(),
                 Port = -1,
                 Scheme = "http"
             };
 
-            string rawResponse = null;
+            string rawResponse;
             try
             {
                 rawResponse = await FabplanHttpRequest.Get(builder.ToString());
@@ -126,8 +126,8 @@ namespace CutQueue
         {
             UriBuilder builder = new UriBuilder()
             {
-                Host = ConfigINI.GetInstance().Items["HOST_NAME"].ToString(),
-                Path = ConfigINI.GetInstance().Items["SET_LAST_UPDATE_DATE_URL"].ToString(),
+                Host = ConfigINI.Items["FABPLAN_HOST_NAME"].ToString(),
+                Path = ConfigINI.Items["FABPLAN_SET_LAST_UPDATE_DATE_URL"].ToString(),
                 Port = -1,
                 Scheme = "http"
             };

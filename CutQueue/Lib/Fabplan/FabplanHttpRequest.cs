@@ -124,7 +124,7 @@ namespace CutQueue.Lib.Fabplan
         /// <returns>The decoded response</returns>
         private async Task<dynamic> DecodeResponse()
         {
-            dynamic responseObject = null;
+            dynamic responseObject;
             try
             {
                 responseObject = JsonConvert.DeserializeObject(await instance.response.Content.ReadAsStringAsync());
@@ -134,7 +134,7 @@ namespace CutQueue.Lib.Fabplan
                 throw new UnexpectedFabplanHttpResponseFormatException("Response is not an object.", e);
             }
 
-            string status = null;
+            string status;
             try
             {
                 status = responseObject.GetValue("status");
@@ -146,7 +146,7 @@ namespace CutQueue.Lib.Fabplan
 
             if (status == "success")
             {
-                dynamic successMember = null;
+                dynamic successMember;
                 try
                 {
                     successMember = responseObject.GetValue("success");
@@ -170,7 +170,7 @@ namespace CutQueue.Lib.Fabplan
             }
             else if (status == "warning")
             {
-                dynamic warningMember = null;
+                dynamic warningMember;
                 try
                 {
                     warningMember = responseObject.GetValue("warning");
@@ -199,7 +199,7 @@ namespace CutQueue.Lib.Fabplan
             }
             else if (status == "failure")
             {
-                dynamic failureMember = null;
+                dynamic failureMember;
                 try
                 {
                     failureMember = responseObject.GetValue("failure");

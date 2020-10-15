@@ -14,6 +14,7 @@ Local Const $CUT_RITE_LISTVIEW_CLASS_NAME = "SysListView32"
 Local Const $CUT_RITE_BUTTON_CLASS_NAME = "Button"
 Local Const $CUT_RITE_IMPORT_PART_LIST_WINDOW_TITLE = "Import - parts"
 Local Const $CUT_RITE_IMPORT_PART_LIST_CONFIRMATION_WINDOW_TITLE = "Import"
+Local Const $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_CLASS_NAME = "#32770"
 Local Const $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TITLE = "Import - parts"
 Local Const $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TEXT = "Click Cancel to cancel the operation"
 Local Const $CUT_RITE_IMPORT_FINISHED_WINDOW_TITLE = "Import - parts"
@@ -179,20 +180,20 @@ Func CutRite_ImportPartsFromCSV($mainWindow, $partListFileName)
 	EndIf
 
 	Local $importInprogressWindow = WinWait( _
-		"[CLASS:" & $CUT_RITE_MODAL_WINDOW_CLASS_NAME & "; TITLE:" & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TITLE & ";]", _
+		"[CLASS:" & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_CLASS_NAME & "; TITLE:" & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TITLE & ";]", _
 		$CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TEXT, _
-		5 _
+		30 _
 	)
 	If($importInprogressWindow == 0) Then
 		Debug( _
-			'The application failed to produce a window with class "' & $CUT_RITE_MODAL_WINDOW_CLASS_NAME & '", title "' & _
-			$CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TITLE & '" and text "' & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TEXT & '".' & @CRLF _
+			'The application failed to produce a window with a class "' & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_CLASS_NAME & _
+			'", a title "' & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TITLE & '" and text "' & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TEXT & '".' & @CRLF _
 		)
 		Return SetError(3, 0, 'The application failed to produce the import in progress window.')
 	EndIf
 
 	Debug( _
-		'Found window with class "' & $CUT_RITE_MODAL_WINDOW_CLASS_NAME & '", title "' & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TITLE & _
+		'Found a window with a class "' & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_CLASS_NAME & '", a title "' & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TITLE & _
 		'" and text "' & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TEXT & '" having handle ' & $importInprogressWindow & '.' & @CRLF _
 	)
 

@@ -16,19 +16,19 @@ namespace CutQueue.Lib.import.model
     class FichierCSV
     {
 
-        private FileInfo _file;
-	    private List<EntreeCSV> _entrees;
-	
+        private readonly FileInfo _file;
+        private readonly List<EntreeCSV> _entrees;
+
         /// <summary>
         /// Constructor that accepts a file as an argument
         /// </summary>
         /// <param name="file">The csv job file</param>
-	    public FichierCSV(FileInfo file)
+        public FichierCSV(FileInfo file)
         {
-		    _file = file;
+            _file = file;
             _entrees = new List<EntreeCSV>();
-		
-		    ReadFile();
+
+            ReadFile();
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace CutQueue.Lib.import.model
 
                 /* Determine if job is linked to a batch. If job doesn't exist, it is considered as not linked to any batch. */
                 bool isLinked = false;
-                if(exists)
+                if (exists)
                 {
                     isLinked = await JobIsLinked();
                 }
@@ -88,7 +88,7 @@ namespace CutQueue.Lib.import.model
                     foreach (EntreeCSV entree in _entrees)
                     {
                         /* If the jobtype of the current part is not the same as the jobtype of the previous part, create a new jobtype. */
-                        dynamic jobType = null;
+                        dynamic jobType;
                         int count = job.jobTypes.Count;
                         int index = count - 1;
                         string type = (index >= 0) ? job.jobTypes[index].type : null;
@@ -211,17 +211,14 @@ namespace CutQueue.Lib.import.model
                 Scheme = "http"
             };
 
-            bool exists = true;
             try
             {
-                exists = await FabplanHttpRequest.Get(builder.ToString(), new { name = GetJobNumber() });
+                return await FabplanHttpRequest.Get(builder.ToString(), new { name = GetJobNumber() });
             }
             catch (Exception e)
             {
                 throw new Exception($"Failed to determine if job \"{GetJobNumber()}\" exists.", e);
             }
-
-            return exists;
         }
 
         /// <summary>
@@ -239,17 +236,14 @@ namespace CutQueue.Lib.import.model
                 Scheme = "http"
             };
 
-            bool isLinked = true;
             try
             {
-                isLinked = await FabplanHttpRequest.Get(builder.ToString(), new { name = GetJobNumber() });
+                return await FabplanHttpRequest.Get(builder.ToString(), new { name = GetJobNumber() });
             }
             catch (Exception e)
             {
                 throw new Exception($"Failed to determine if job \"{GetJobNumber()}\" is linked to a batch.", e);
             }
-
-            return isLinked;
         }
     }
 
@@ -280,30 +274,30 @@ namespace CutQueue.Lib.import.model
         private string _modele;
         private string _essence;
         private string _grade;
-	    private string _quantite;
-	    private string _hauteur;
-	    private string _largeur;
+        private string _quantite;
+        private string _hauteur;
+        private string _largeur;
         private string _grain;
         private string _type;
-	    private string _profil;
-	    private string _dimA;
-	    private string _dimB;
-	    private string _dimB1;
-	    private string _dimC;
-	    private string _dimH1;
-	    private string _dimH2;
+        private string _profil;
+        private string _dimA;
+        private string _dimB;
+        private string _dimB1;
+        private string _dimC;
+        private string _dimH1;
+        private string _dimH2;
         private string _dueDate;
         private string _customerPO;
 
-        
+
         /// <summary>
         /// Main constructor that accepts line from a job csv file as a parameter 
         /// </summary>
         /// <param name="ligne"></param>
         public EntreeCSV(string ligne)
         {
-		    Ligne = ligne;
-		    Parse();
+            Ligne = ligne;
+            Parse();
         }
 
         public string Ligne { get => _ligne; set => _ligne = value; }
@@ -340,18 +334,18 @@ namespace CutQueue.Lib.import.model
             Modele = split[0];
             Essence = split[1];
             Grade = split[2];
-		    Quantite = split[3];
-		    Hauteur = split[4];
-		    Largeur = split[5];
-		    Grain = split[6];
+            Quantite = split[3];
+            Hauteur = split[4];
+            Largeur = split[5];
+            Grain = split[6];
             Type = split[7];
             Profil = split[8];
-		    DimA = split[9];
-		    DimB = split[10];
-		    DimB1 = split[11];
-		    DimC = split[12];
-		    DimH1 = split[13];
-		    DimH2 = split[14];
+            DimA = split[9];
+            DimB = split[10];
+            DimB1 = split[11];
+            DimC = split[12];
+            DimH1 = split[13];
+            DimH2 = split[14];
             DueDate = split[15];
             CustomerPO = split[16];
 

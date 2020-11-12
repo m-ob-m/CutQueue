@@ -11,7 +11,7 @@
 #include <Constants.au3>
 #include <File.au3>
 #include "CutRite.au3"
-#include "toolbox.au3"
+#include "ToolBox.au3"
 
 AutoItSetOption("WinDetectHiddenText", 1)
 AutoItSetOption("MustDeclareVars", 1)
@@ -51,6 +51,7 @@ Func Main()
 	WEnd
 
 	; Attendre la fenetre de revue. Durant ce temps, vérifier si la fenêtre d'erreur de RunCalc ouvre
+	Local $i
 	Debug("Optimisation process starting." & @CRLF)
 	Local $reviewRunsWindow = 0
 	Local $errorMessage = ""
@@ -59,10 +60,11 @@ Func Main()
 		Debug("Optimisation process done." & @CRLF)
 		$reviewRunsWindow = $temp
 
+		#comments-start
 		; Transfer to machining center
 		Debug("Transfer to machining center process starting" & @CRLF)
 		Local $MAX_ATTEMPTS = 5
-		Local $i = 0
+		$i = 0
 		Do
 			$i += 1
 			$errorMessage = CutRite_TransferToMachiningCenter($reviewRunsWindow)
@@ -70,9 +72,12 @@ Func Main()
 				Debug('The transfer to machining center process returned error message "' & $errorMessage & '" on attempt ' & $i & ' of ' & $MAX_ATTEMPTS & '.' & @CRLF)
 			Else
 				Debug('The transfer to machining center process succeeded on attempt ' & $i & ' of ' & $MAX_ATTEMPTS & '.' & @CRLF)
+				ExitLoop
 			EndIf
-		Until($i < $MAX_ATTEMPTS)
+		Until($i > $MAX_ATTEMPTS)
 		Debug("Transfer to machining center process done." & @CRLF)
+
+		#comments-end
 	Else
 		$errorMessage = $temp
 	EndIf
@@ -80,7 +85,22 @@ Func Main()
 
 	KillWindow($partListWindow)
 	KillWindow($reviewRunsWindow)
-	KillProcess($processId)
+	KillProcess($processID)
+
+	; Kill process "Report.exe" if it becomes a zombie.
+	$i = 1
+	Local $processName = "Report.exe"
+	While($i <= $MAX_ATTEMPTS And ProcessExists($processName))
+		$i += 1
+		If ProcessClose($processName) == 0 Then
+			Debug('Failed to kill zombie process "' & $processName & '" on attempt ' & $i & ' of ' & $MAX_ATTEMPTS & '.' & @CRLF)
+			Sleep(500)
+		Else
+			Debug('Succeeded to kill zombie process "' & $processName & '" on attempt ' & $i & ' of ' & $MAX_ATTEMPTS & '.' & @CRLF)
+			ExitLoop
+		EndIf
+	WEnd
+
 	If $errorMessage <> "" And $errorMessage <> Null Then
 		ExitWithCodeAndMessage(5, $errorMessage)
 	ElseIf WinExists($partListWindow) Then

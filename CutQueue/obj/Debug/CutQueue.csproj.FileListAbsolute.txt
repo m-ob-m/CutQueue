@@ -10,7 +10,6 @@ C:\Users\m.maurice\Documents\github\OLDFabplan\CutQueue\CutQueue\CutQueue\obj\De
 C:\Users\m.maurice\Documents\github\OLDFabplan\CutQueue\CutQueue\CutQueue\obj\Debug\CutQueue.exe
 C:\Users\m.maurice\Documents\github\OLDFabplan\CutQueue\CutQueue\CutQueue\obj\Debug\CutQueue.pdb
 C:\Users\m.maurice\Documents\github\OLDFabplan\CutQueue\CutQueue\CutQueue\bin\Debug\config.ini
-C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Debug\CutQueue.csprojAssemblyReference.cache
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Debug\CutQueue.Properties.Resources.resources
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Debug\CutQueue.csproj.GenerateResource.cache
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Debug\CutQueue.csproj.CoreCompileInputs.cache
@@ -23,7 +22,7 @@ C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\CutQueue.pdb
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\Newtonsoft.Json.dll
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\Newtonsoft.Json.xml
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Debug\CutQueue.csproj.CopyComplete
-C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\imagemagick.exe
-C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\importCSV.exe
-C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\optimise.exe
-C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\panneaux.exe
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\ImageMagick.exe
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\ImportCSV.exe
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\Optimise.exe
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\Panneaux.exe

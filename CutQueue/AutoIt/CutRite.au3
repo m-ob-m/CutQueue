@@ -1,7 +1,7 @@
 #include-once
 #include <Constants.au3>
 #include <GUIListView.au3>
-#include "toolbox.au3"
+#include "ToolBox.au3"
 
 AutoItSetOption("MustDeclareVars", 1)
 

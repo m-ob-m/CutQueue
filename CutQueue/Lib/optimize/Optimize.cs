@@ -1,16 +1,15 @@
 ﻿using CutQueue.Lib;
 using CutQueue.Lib.Fabplan;
-using CutQueue.Logging;
+using CutQueue.Lib.Tools;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Threading;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 
 namespace CutQueue
 {
@@ -20,13 +19,12 @@ namespace CutQueue
     class Optimize
     {
         private static bool _inProgress = false;
-        private enum ContinueStatus {No, Yes}
+        private enum ContinueStatus { No, Yes }
 
         /// <summary>
         /// Main constructor
         /// </summary>
-        public Optimize()
-        {}
+        public Optimize() { }
 
         /// <summary>
         /// Optimizes batches until there is nothing left to optimize.
@@ -62,7 +60,7 @@ namespace CutQueue
         /// <returns>A <c>ContinueStatus</c> value that tells the main optimization loop when if it should continue looping.</returns>
         private async Task<ContinueStatus> OptimizeNextBatch()
         {
-            dynamic batch = null;
+            dynamic batch;
             try
             {
                 batch = await GetNextBatchToOptimize();
@@ -77,6 +75,8 @@ namespace CutQueue
                 try
                 {
                     await OptimizeBatch(batch);
+                    TransferToMachiningCenter(batch);
+                    await UpdateEtatMpr(((dynamic)batch).id, 'G');
                 }
                 catch (Exception e)
                 {
@@ -155,37 +155,6 @@ namespace CutQueue
         }
 
         /// <summary>
-        /// Executes a process.
-        /// </summary>
-        /// <param name="procName">The filepath of the process to execute</param>
-        /// <param name="arguments">A string of arguments used to start the process</param>
-        /// <returns>The process' output</returns>
-        private (int exitCode, string standardOutput) ExecuteProcess(string procName, string arguments)
-        {
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo
-            {
-                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
-                FileName = procName,
-                Arguments = arguments,
-                RedirectStandardOutput = true,
-                UseShellExecute = false
-            };
-
-            System.Diagnostics.Process process = new System.Diagnostics.Process
-            {
-                StartInfo = startInfo
-            };
-            process.Start();
-
-            string standardOutput = process.StandardOutput.ReadToEnd();
-            
-
-            process.WaitForExit();
-
-            return (process.ExitCode, standardOutput);
-        }
-
-        /// <summary>
         /// Optimizes a given batch using Cut Rite.
         /// </summary>
         /// <param name="batch"> The name of the batch to optimize</param>
@@ -195,64 +164,108 @@ namespace CutQueue
             // Changer l'état pour en cours (P pour In Progress)
             await UpdateEtatMpr(((dynamic)batch).id, 'C');
 
-            string batchName = ((dynamic)batch).name;      // Nom du fichier CSV
+            string batchName = ((dynamic)batch).name.ToString();      // Nom du fichier CSV
 
-            int exitCode;
-            string standardOutput;
+            DeleteCutRiteBatchData(batchName);
 
-            DeletePartListFile(batchName);
+            int exitCode; string standardOutput; string standardError;
 
             // Import du CSV
-            (exitCode, standardOutput) = ExecuteProcess(new Uri(new Uri($"{Application.StartupPath}/"), "autoit/importCSV.exe").LocalPath, $"\"{batchName}.txt\"");
+            (exitCode, standardOutput, standardError) = ProcessAdvanced.ExecuteProcess(
+                Path.Combine(Application.StartupPath, "AutoIt/ImportCSV.exe"),
+                $"\"{batchName}.txt\"",
+                int.Parse(ConfigINI.Items["MAXIMUM_EXECUTION_TIME_FOR_IMPORT_EXE"].ToString())
+            );
             if (exitCode != 0)
             {
-                throw new Exception(standardOutput);
+                throw new Exception(standardOutput + standardError);
             }
 
             // Génération du fichier des panneaux (.brd)
-            (exitCode, standardOutput) = ExecuteProcess(new Uri(new Uri($"{Application.StartupPath}/"), "autoit/panneaux.exe").LocalPath, $"\"{batchName}.txt\"");
+            (exitCode, standardOutput, standardError) = ProcessAdvanced.ExecuteProcess(
+                Path.Combine(Application.StartupPath, "Autoit/Panneaux.exe"),
+                $"\"{batchName}.txt\"",
+                int.Parse(ConfigINI.Items["MAXIMUM_EXECUTION_TIME_FOR_PANNEAUX_EXE"].ToString())
+            );
             if (exitCode != 0)
             {
-                throw new Exception(standardOutput);
+                throw new Exception(standardOutput + standardError);
             }
 
             // Modification du fichier .brd pour avoir les bons panneaux
             ModifyPanneaux(((dynamic)batch).pannels, ((dynamic)batch).name);
 
             // Optimisation
-            (exitCode, standardOutput) = ExecuteProcess(new Uri(new Uri($"{Application.StartupPath}/"), "autoit/optimise.exe").LocalPath, $"\"{batchName}.txt\"");
+            (exitCode, standardOutput, standardError) = ProcessAdvanced.ExecuteProcess(
+                Path.Combine(Application.StartupPath, "AutoIt/Optimise.exe"),
+                $"\"{batchName}.txt\"",
+                int.Parse(ConfigINI.Items["MAXIMUM_EXECUTION_TIME_FOR_OPTIMISE_EXE"].ToString())
+            );
             if (exitCode != 0)
             {
-                throw new Exception(standardOutput);
+                throw new Exception(standardOutput + standardError);
             }
+        }
+
+        /// <summary>
+        /// Transfers a batch to the machining center.
+        /// </summary>
+        /// <param name="batch">The name of the batch</param>
+        public void TransferToMachiningCenter(dynamic batch)
+        {
+            string batchName = ((dynamic)batch).name.ToString();
 
             // Convertir les fichiers WMF en JPG
-            List<(Uri wmfFileUri, Uri jpegFileUri)> wmfToJpgConversionResults = ConvertBatchWmfToJpg(((dynamic)batch).name);
+            List<(string wmfFile, string jpgFile)> wmfToJpgConversionResults = ConvertBatchWmfToJpg(batchName);
 
             // Copie des fichiers .ctt, .pc2 et images JPEG vers serveur
-            Uri sourceDirectoryUri = new Uri(CutRiteConfigurationReader.Items["SYSTEM_DATA_PATH"].ToString());
-            Uri destinationDirectoryUri = new Uri(new Uri(CutRiteConfigurationReader.Items["MACHINING_CENTER_TRANSFER_PATTERNS_PATH"].ToString()), $"{batchName}/"); 
-            Directory.CreateDirectory(destinationDirectoryUri.LocalPath);
+            string sourceDirectory = CutRiteConfigurationReader.Items["SYSTEM_DATA_PATH"].ToString();
+            string destinationDirectory = Path.Combine(CutRiteConfigurationReader.Items["MACHINING_CENTER_TRANSFER_PATTERNS_PATH"].ToString(), batchName);
 
-            List<(Uri sourceFileUri, Uri destinationFileUri)> filesToCopy = new List<(Uri sourceFileUri, Uri destinationFileUri)>
+            try
             {
-                (new Uri(sourceDirectoryUri, $"{batchName}.ctt"), new Uri(destinationDirectoryUri, $"{batchName}.ctt")),
-                (new Uri(sourceDirectoryUri, $"{batchName}.pc2"), new Uri(destinationDirectoryUri, $"{batchName}.pc2"))
-            };
-            foreach ((Uri _, Uri jpegFileUri) in wmfToJpgConversionResults)
-            {
-                filesToCopy.Add((
-                    jpegFileUri, 
-                    new Uri(destinationDirectoryUri, Path.GetFileName(jpegFileUri.LocalPath))
-                ));
+                Directory.Delete(destinationDirectory, true);
             }
-            CopyFiles(filesToCopy);
+            catch (DirectoryNotFoundException) { }
+            Directory.CreateDirectory(destinationDirectory);
+
+            // Simplifier les programmes d'usinage.
+            SimplifyMprFiles(batchName);
+
+            // Copier les fichiers pertinents au centre d'usinage.
+            File.Copy(Path.Combine(sourceDirectory, $"{batchName}.ctt"), Path.Combine(destinationDirectory, $"{batchName}.ctt"), true);
+            File.Copy(Path.Combine(sourceDirectory, $"{batchName}.pc2"), Path.Combine(destinationDirectory, $"{batchName}.pc2"), true);
+            wmfToJpgConversionResults.ForEach(result => File.Copy(result.jpgFile, Path.Combine(destinationDirectory, Path.GetFileName(result.jpgFile)), true));
 
             // Création du fichier de batch "batch.txt"
-            File.WriteAllText(new Uri(destinationDirectoryUri, "batch.txt").LocalPath, ((dynamic)batch).id.ToString());
+            File.WriteAllText(Path.Combine(destinationDirectory, "batch.txt"), ((dynamic)batch).id.ToString());
+        }
 
-            // Optimisation terminée
-            await UpdateEtatMpr(((dynamic)batch).id, 'G');
+        /// <summary>
+        /// Simplifies the mpr files for a batch.
+        /// </summary>
+        /// <param name="batchName">The name of the batch</param>
+        private void SimplifyMprFiles(string batchName)
+        {
+            foreach (string sourceMprFile in GetNestingMprFiles(batchName))
+            {
+                string destinationMprFile = Path.Combine(
+                    CutRiteConfigurationReader.Items["MACHINING_CENTER_TRANSFER_PATTERNS_PATH"].ToString(),
+                    batchName,
+                    $"{Path.GetFileNameWithoutExtension(sourceMprFile)}.mpr".Replace("$", "")
+                );
+
+                (int exitCode, string standardOutput, string standardError) = ProcessAdvanced.ExecuteProcess(
+                    Path.Combine(Application.StartupPath, "MprSimplifier.exe"),
+                    $"\"--input-file\" \"{sourceMprFile}\" \"--output-file\" \"{destinationMprFile}\"",
+                    int.Parse(ConfigINI.Items["MAXIMUM_EXECUTION_TIME_FOR_MPRSIMPLIFIER_EXE"].ToString())
+                );
+
+                if (exitCode != 0)
+                {
+                    throw new Exception(standardOutput + standardError);
+                }
+            }
         }
 
         /// <summary>
@@ -260,74 +273,56 @@ namespace CutQueue
         /// Also, sending an erroneous batch to the machining center is a bit harder.
         /// </summary>
         /// <param name="batchName"> The name of the batch to process. </param>
-        private void DeletePartListFile(string batchName)
+        private void DeleteCutRiteBatchData(string batchName)
         {
-            string fileName = $"{batchName}.prl";
-            string directoryPath = CutRiteConfigurationReader.Items["SYSTEM_PART_LIST_PATH"].ToString();
-            string fullFilePath = directoryPath + fileName;
+            List<string> filesToDelete = GetNestingMprFiles(batchName);
+            filesToDelete.AddRange(GetNestingWmfFiles(batchName));
+            filesToDelete.Add(Path.Combine(CutRiteConfigurationReader.Items["SYSTEM_PART_LIST_PATH"].ToString(), $"{batchName}.prl"));
+            filesToDelete.ForEach(fileToDelete => File.Delete(fileToDelete));
+        }
 
-            if (File.Exists(fullFilePath))
-            {
-                using (FileSystemWatcher fileSystemWatcher = new FileSystemWatcher(directoryPath, fileName))
-                using (ManualResetEventSlim threadSynchronizationEvent = new ManualResetEventSlim())
-                {
-                    fileSystemWatcher.EnableRaisingEvents = true;
-                    fileSystemWatcher.Deleted += (object sender, FileSystemEventArgs e) => { threadSynchronizationEvent.Set(); };
-                    File.Delete(fullFilePath);
+        /// <summary>
+        /// Returns the list of nesting mpr files for a given batch. 
+        /// </summary>
+        /// <param name="batchName">The batch name.</param>
+        private List<string> GetNestingMprFiles(string batchName)
+        {
+            return Directory.GetFiles(CutRiteConfigurationReader.Items["SYSTEM_PART_LIST_PATH"].ToString())
+                .Where(path => new Regex(@"(?<=[\\/])\$" + Regex.Escape(batchName) + @"\d{4}\$\.mpr\z", RegexOptions.IgnoreCase).IsMatch(path))
+                .ToList();
+        }
 
-                    int maximumWaitTime = 5;
-                    threadSynchronizationEvent.Wait(maximumWaitTime * 1000);
-                    if (!threadSynchronizationEvent.IsSet)
-                    {
-                        throw new Exception($"Deleting part list file \"{fullFilePath}\" took more than {maximumWaitTime} seconds.");
-                    }
-                }
-            }
+        /// <summary>
+        /// Returns the list of nesting wmf files for a given batch. 
+        /// </summary>
+        /// <param name="batchName">The batch name.</param>
+        private List<string> GetNestingWmfFiles(string batchName)
+        {
+            return Directory.GetFiles(CutRiteConfigurationReader.Items["SYSTEM_PART_LIST_PATH"].ToString())
+                .Where(path => new Regex(@"(?<=[\\/])\$" + Regex.Escape(batchName) + @"\d{4}\$\.wmf\z", RegexOptions.IgnoreCase).IsMatch(path))
+                .ToList();
         }
 
         /// <summary>
         /// Converts a batch's wmf image files to jpg.
         /// </summary>
         /// <param name="batchName">The batch name.</param>
-        /// </param>
-        public List<(Uri wmfFileUri, Uri jpegFileUri)> ConvertBatchWmfToJpg(string batchName)
+        private List<(string wmfFile, string jpegFile)> ConvertBatchWmfToJpg(string batchName)
         {
-            List<(Uri wmfFileUri, Uri jpegFileUri)>  wmfToJpgConversionResults = new List<(Uri wmfFileUri, Uri jpegFileUri)>();
-            for (int i = 1; i < 9999; i++)
+            List<(string wmfFile, string jpegFile)> wmfToJpgConversionResults = new List<(string wmfFile, string jpegFile)>();
+            foreach (string wmfFile in GetNestingWmfFiles(batchName))
             {
-                Uri wmfFileUri = new Uri(
-                    new Uri(CutRiteConfigurationReader.Items["SYSTEM_DATA_PATH"].ToString()), 
-                    "$" + batchName + FillZero(i, 4) + "$.wmf"
+                // Conversion WMF vers JPG
+                string jpgFile = Path.Combine(Path.GetDirectoryName(wmfFile), $"{Path.GetFileNameWithoutExtension(wmfFile)}.jpg".Replace("$", ""));
+                wmfToJpgConversionResults.Add((wmfFile, jpgFile));
+                ProcessAdvanced.ExecuteProcess(
+                    Path.Combine(Application.StartupPath, "AutoIt/ImageMagick.exe"),
+                    $"\"{wmfFile}\" \"{jpgFile}\"",
+                    int.Parse(ConfigINI.Items["MAXIMUM_EXECUTION_TIME_FOR_IMAGEMAGIK_EXE"].ToString())
                 );
-
-                if (File.Exists(wmfFileUri.LocalPath))
-                {
-                    // Conversion WMF vers JPG
-                    Uri jpgFileUri = new Uri(
-                        new Uri(CutRiteConfigurationReader.Items["SYSTEM_DATA_PATH"].ToString()), 
-                        batchName + FillZero(i, 4) + ".jpg"
-                    );
-                    wmfToJpgConversionResults.Add((wmfFileUri, jpgFileUri));
-                    ExecuteProcess(
-                        new Uri(new Uri($"{Application.StartupPath}/"), "autoit/imagemagick.exe").LocalPath, 
-                        $"\"{wmfFileUri.LocalPath}\" \"{jpgFileUri.LocalPath}\""
-                    );
-                }
-                else
-                {
-                    break;
-                }
             }
 
             return wmfToJpgConversionResults;
-        }
-
-        public void CopyFiles(List<(Uri sourceFileUri, Uri destinationFileUri)> filesToCopy)
-        {
-            foreach ((Uri sourceFileUri, Uri destinationFileUri) in filesToCopy)
-            {
-                File.Copy(sourceFileUri.LocalPath, destinationFileUri.LocalPath, true);
-            }
         }
 
         /// <summary>
@@ -379,13 +374,13 @@ namespace CutQueue
         private void ModifyPanneaux(string panneaux, string batchName)
         {
             string[] pans = panneaux.Split(',');
-            Uri boardFileUri = new Uri(new Uri(CutRiteConfigurationReader.Items["SYSTEM_DATA_PATH"].ToString()), $"{batchName}.brd");
+            string boardFile = Path.Combine(CutRiteConfigurationReader.Items["SYSTEM_DATA_PATH"].ToString(), $"{batchName}.brd");
 
-            string[] brdLines = File.ReadAllText(boardFileUri.LocalPath).Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            string[] brdLines = File.ReadAllText(boardFile).Split(new string[] { "\r\n" }, StringSplitOptions.None);
 
             string brd = brdLines[0] + "\r\n" + brdLines[1] + "\r\n" + brdLines[2] + "\r\n";
 
-            foreach(string line in brdLines)
+            foreach (string line in brdLines)
             {
                 if (line.Length > 5)
                 {
@@ -394,7 +389,7 @@ namespace CutQueue
                         foreach (string pan in pans)
                         {
                             if (line.IndexOf(pan) > 0)
-                            {   
+                            {
                                 // Panneau match
                                 brd += line + "\r\nBRD2,,0,1,0,\r\n";
                             }
@@ -403,23 +398,7 @@ namespace CutQueue
                 }
             }
 
-            File.WriteAllText(boardFileUri.LocalPath, brd);
-        }
-
-        /// <summary>
-        /// Adds 0's at the beginning of the integer <paramref name="i"/> in order to normalize its length to <paramref name="nb"/>.
-        /// </summary>
-        /// <param name="i"></param>
-        /// <param name="nb"></param>
-        /// <returns></returns>
-        private string FillZero(int i, short nb)
-        {
-            string ret = i.ToString();
-            while (ret.Length < nb)
-            {
-                ret = "0" + ret;
-            }
-            return ret;
+            File.WriteAllText(boardFile, brd);
         }
     }
 }

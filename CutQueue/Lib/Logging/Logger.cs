@@ -1,7 +1,7 @@
 ﻿namespace CutQueue.Logging
 {
-    using System.IO;
     using System;
+    using System.IO;
 
     /// <summary>
     /// Class that handles logging.
@@ -32,7 +32,7 @@
             }
             catch (Exception)
             {
-                Logger.text += $"The previous error was logged at {currentDateTime} due to log file unavailability.\n" ;
+                Logger.text += $"The previous error was logged at {currentDateTime} due to log file unavailability.\n";
             }
         }
     }

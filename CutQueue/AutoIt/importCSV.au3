@@ -12,7 +12,7 @@
 
 #include <File.au3>
 #include "CutRite.au3"
-#include "toolbox.au3"
+#include "ToolBox.au3"
 
 AutoItSetOption("WinDetectHiddenText", 1)
 AutoItSetOption("MustDeclareVars", 1)

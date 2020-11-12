@@ -1,0 +1,215 @@
+11 novembre 2020 16:56:29	System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 98
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 102
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à CallSite.Target(Closure , CallSite , Object )
+   à System.Dynamic.UpdateDelegates.UpdateAndExecuteVoid1[T0](CallSite site, T0 arg0)
+   à CutQueue.AppContext.<LogInToFabplan>d__17.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 254
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.GetResult()
+   à CutQueue.AppContext.<DoSync>d__12.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 164
+
+11 novembre 2020 16:57:21	System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 98
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 102
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à CallSite.Target(Closure , CallSite , Object )
+   à CutQueue.AppContext.<LogInToFabplan>d__17.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 254
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.GetResult()
+   à CutQueue.AppContext.<DoSync>d__12.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 164
+
+11 novembre 2020 16:57:28	System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 98
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 102
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à CallSite.Target(Closure , CallSite , Object )
+   à CutQueue.AppContext.<LogInToFabplan>d__17.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 254
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.GetResult()
+   à CutQueue.AppContext.<DoSync>d__12.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 164
+
+11 novembre 2020 17:26:24	System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 98
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 102
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à CallSite.Target(Closure , CallSite , Object )
+   à System.Dynamic.UpdateDelegates.UpdateAndExecuteVoid1[T0](CallSite site, T0 arg0)
+   à CutQueue.AppContext.<LogInToFabplan>d__17.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 254
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.GetResult()
+   à CutQueue.AppContext.<DoSync>d__12.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 164
+
+11 novembre 2020 17:27:08	System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 98
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 102
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à CallSite.Target(Closure , CallSite , Object )
+   à CutQueue.AppContext.<LogInToFabplan>d__17.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 254
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.GetResult()
+   à CutQueue.AppContext.<DoSync>d__12.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 164
+
+11 novembre 2020 17:27:46	System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 98
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 102
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à CallSite.Target(Closure , CallSite , Object )
+   à CutQueue.AppContext.<LogInToFabplan>d__17.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 254
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.GetResult()
+   à CutQueue.AppContext.<DoSync>d__12.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 164
+
+11 novembre 2020 17:28:11	System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 98
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 102
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à CallSite.Target(Closure , CallSite , Object )
+   à System.Dynamic.UpdateDelegates.UpdateAndExecuteVoid1[T0](CallSite site, T0 arg0)
+   à CutQueue.AppContext.<LogInToFabplan>d__17.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 254
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.GetResult()
+   à CutQueue.AppContext.<DoSync>d__12.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 164
+
+11 novembre 2020 17:29:29	System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 98
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 102
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à CallSite.Target(Closure , CallSite , Object )
+   à CutQueue.AppContext.<LogInToFabplan>d__17.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 254
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.GetResult()
+   à CutQueue.AppContext.<DoSync>d__12.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 164
+
+11 novembre 2020 17:30:02	System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 98
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 102
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à CallSite.Target(Closure , CallSite , Object )
+   à CutQueue.AppContext.<LogInToFabplan>d__17.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 254
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.GetResult()
+   à CutQueue.AppContext.<DoSync>d__12.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 164
+
+11 novembre 2020 17:30:09	System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 98
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Post>d__8.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 102
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à CallSite.Target(Closure , CallSite , Object )
+   à CutQueue.AppContext.<LogInToFabplan>d__17.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 254
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.GetResult()
+   à CutQueue.AppContext.<DoSync>d__12.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 164
+
+11 novembre 2020 19:51:32	System.Exception: Could not obtain unique identifier from name "" in the API. ---> System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Get>d__7.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 75
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Get>d__7.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 79
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   à CutQueue.AppContext.<TransferToMachiningCenterMenuItem_Click>d__11.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 149
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.AppContext.<TransferToMachiningCenterMenuItem_Click>d__11.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 153
+
+11 novembre 2020 19:52:17	System.Exception: Could not obtain unique identifier from name "" in the API. ---> System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Get>d__7.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 75
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Get>d__7.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 79
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   à CutQueue.AppContext.<TransferToMachiningCenterMenuItem_Click>d__11.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 149
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.AppContext.<TransferToMachiningCenterMenuItem_Click>d__11.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 153
+
+11 novembre 2020 19:52:32	System.Exception: Could not obtain unique identifier from name "" in the API. ---> System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Get>d__7.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 75
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Get>d__7.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 79
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   à CutQueue.AppContext.<TransferToMachiningCenterMenuItem_Click>d__11.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 149
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.AppContext.<TransferToMachiningCenterMenuItem_Click>d__11.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 153
+
+11 novembre 2020 19:52:34	System.Exception: Could not obtain unique identifier from name "" in the API. ---> System.Exception: The request to the API failed. ---> System.Net.Http.HttpRequestException: Le code d'état de réponse n'indique pas la réussite : 404 (Not Found).
+   à System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Get>d__7.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 75
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.Lib.Fabplan.FabplanHttpRequest.<Get>d__7.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\Lib\Fabplan\FabplanHttpRequest.cs:ligne 79
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   à CutQueue.AppContext.<TransferToMachiningCenterMenuItem_Click>d__11.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 149
+   --- Fin de la trace de la pile d'exception interne ---
+   à CutQueue.AppContext.<TransferToMachiningCenterMenuItem_Click>d__11.MoveNext() dans C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\AppContext.cs:ligne 153
+

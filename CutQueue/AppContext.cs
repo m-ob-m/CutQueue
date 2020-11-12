@@ -1,13 +1,11 @@
 ﻿using CutQueue.Lib.Fabplan;
+using CutQueue.Logging;
 using Microsoft.VisualBasic;
 using System;
 using System.Drawing;
+using System.Dynamic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using CutQueue.Logging;
-using System.IO;
-using System.Collections.Generic;
-using CutQueue.Lib;
 
 /**
  * \name		AppContext
@@ -31,9 +29,8 @@ namespace CutQueue
         private ContextMenuStrip TrayIconContextMenu;
         private ToolStripMenuItem CloseMenuItem;
         private ToolStripMenuItem SyncMenuItem;
-        private ToolStripMenuItem UpdateImagesMenuItem;
-
-        private Timer timer;   // Timer de synchronisation
+        private ToolStripMenuItem TransferToMachiningCenterMenuItem;
+        private readonly Timer timer;   // Timer de synchronisation
         private readonly ImportCSV csv;
         private readonly Optimize optimize;
 
@@ -80,14 +77,13 @@ namespace CutQueue
             };
             SyncMenuItem.Click += new EventHandler(SyncMenuItem_Click);
 
-            UpdateImagesMenuItem = new ToolStripMenuItem
+            TransferToMachiningCenterMenuItem = new ToolStripMenuItem
             {
-                Name = "UpdateImagesMenuItem",
+                Name = "TransferToMachiningCenterMenuItem",
                 Size = new Size(152, 22),
-                Text = "Mettre à jour les images",
-                ToolTipText = "Met à jour les images d'un projet modifié dans CutRite"
+                Text = "Envoyer vers le centre d'usinage",
             };
-            UpdateImagesMenuItem.Click += new EventHandler(UpdateImagesMenuItem_Click);
+            TransferToMachiningCenterMenuItem.Click += new EventHandler(TransferToMachiningCenterMenuItem_Click);
 
             TrayIconContextMenu = new ContextMenuStrip
             {
@@ -95,7 +91,7 @@ namespace CutQueue
                 Size = new Size(153, 70)
             };
             TrayIconContextMenu.SuspendLayout();
-            TrayIconContextMenu.Items.AddRange(new ToolStripItem[] {SyncMenuItem, UpdateImagesMenuItem, CloseMenuItem});
+            TrayIconContextMenu.Items.AddRange(new ToolStripItem[] { SyncMenuItem, TransferToMachiningCenterMenuItem, CloseMenuItem });
             TrayIconContextMenu.ResumeLayout(false);
 
             TrayIcon = new NotifyIcon
@@ -125,28 +121,41 @@ namespace CutQueue
         /// </summary>
         /// <param name="sender">The element that triggered the event</param>
         /// <param name="e">The arguments of the event</param>
-        private void UpdateImagesMenuItem_Click(object sender, EventArgs eventArguments)
+        private async void TransferToMachiningCenterMenuItem_Click(object sender, EventArgs eventArguments)
         {
-            
-            string batchName = Interaction.InputBox("Entrer le nom de la batch pour laquelle il faut mettre les images à jour.", "Mise à jour des images d'une batch", null);
-
-            // Convertir les fichiers WMF en JPG
-            List<(Uri wmfFileUri, Uri jpgFileUri)> wmfToJpgConversionResults = optimize.ConvertBatchWmfToJpg(batchName);
-
-            // Copie des fichiers .ctt, .pc2 et images JPEG vers serveur
-            Uri destinationDirectoryUri = new Uri(new Uri(CutRiteConfigurationReader.Items["MACHINING_CENTER_TRANSFER_PATTERNS_PATH"].ToString()), $"{batchName}/");
-            Directory.CreateDirectory(destinationDirectoryUri.LocalPath);
-
-            List<(Uri sourceFileUri, Uri destinationFileUri)> filesToCopy = new List<(Uri sourceFileUri, Uri destinationFileUri)>();
-            foreach ((_, Uri jpgFileUri) in wmfToJpgConversionResults)
+            try
             {
-                filesToCopy.Add((
-                        jpgFileUri,
-                        new Uri(destinationDirectoryUri, Path.GetFileName(jpgFileUri.LocalPath))
-                ));
+                dynamic batch = new ExpandoObject();
+                batch.name = Interaction.InputBox(
+                    "Entrer le nom de la batch à envoyer au centre d'usinage.",
+                    "Envoi d'une batch au centre d'usinage",
+                    null
+                );
+
+                UriBuilder builder = new UriBuilder()
+                {
+                    Host = ConfigINI.Items["FABPLAN_HOST_NAME"].ToString(),
+                    Path = ConfigINI.Items["FABPLAN_GET_BATCH_ID_BY_BATCH_NAME"].ToString(),
+                    Port = -1,
+                    Scheme = "http"
+                };
+
+                try
+                {
+                    await LogInToFabplan();
+                    batch.id = await FabplanHttpRequest.Get(builder.ToString(), new { batch.name });
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Could not obtain unique identifier from name \"{batch.name}\" in the API.", e);
+                }
+
+                optimize.TransferToMachiningCenter(batch);
             }
-            
-            optimize.CopyFiles(filesToCopy);
+            catch (Exception e)
+            {
+                Logger.Log(e.ToString());
+            }
         }
 
         /// <summary>
@@ -226,6 +235,9 @@ namespace CutQueue
             }
         }
 
+        /// <summary>
+        /// Logs in to Fabplan.
+        /// </summary>
         private async Task LogInToFabplan()
         {
             UriBuilder builder = new UriBuilder()
@@ -236,7 +248,8 @@ namespace CutQueue
                 Scheme = "http"
             };
 
-            dynamic credentials = new {
+            dynamic credentials = new
+            {
                 username = ConfigINI.Items["FABPLAN_USER_NAME"],
                 password = ConfigINI.Items["FABPLAN_PASSWORD"]
             };
@@ -251,6 +264,9 @@ namespace CutQueue
             }
         }
 
+        /// <summary>
+        /// Logs out from Fabplan.
+        /// </summary>
         private async Task LogOutFromFabplan()
         {
             UriBuilder builder = new UriBuilder()

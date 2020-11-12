@@ -64,13 +64,16 @@
     <Compile Include="AppContext.cs" />
     <Compile Include="Lib\ConfigINI.cs" />
     <Compile Include="Lib\CutRiteConfigurationReader.cs" />
+    <Compile Include="Lib\Exceptions\MaximumProcessExecutionTimeReachedException.cs" />
     <Compile Include="Lib\Fabplan\FabplanHttpRequest.cs" />
-    <Compile Include="Lib\import\ImportCSV.cs" />
-    <Compile Include="Lib\import\model\FichierCSV.cs" />
+    <Compile Include="Lib\Import\ImportCSV.cs" />
+    <Compile Include="Lib\Import\Model\FichierCSV.cs" />
     <Compile Include="Lib\Logging\Logger.cs" />
     <Compile Include="Lib\optimize\Optimize.cs" />
     <Compile Include="Lib\SingleGlobalInstance\SingleGlobalInstance.cs" />
-    <Compile Include="Lib\tools\Impersonation.cs" />
+    <Compile Include="Lib\Tools\ProcessAdvanced.cs" />
+    <Compile Include="Lib\Tools\FileAdvanced.cs" />
+    <Compile Include="Lib\Tools\Impersonation.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -84,13 +87,11 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="AutoIt\CutRite.au3" />
-    <None Include="AutoIt\imagemagick.au3" />
-    <None Include="AutoIt\importCSV.au3" />
-    <None Include="AutoIt\optimise.au3" />
-    <None Include="AutoIt\optimise.log" />
-    <None Include="AutoIt\panneaux.au3" />
-    <None Include="AutoIt\panneaux.log" />
-    <None Include="AutoIt\toolbox.au3" />
+    <None Include="AutoIt\ImageMagick.au3" />
+    <None Include="AutoIt\ImportCSV.au3" />
+    <None Include="AutoIt\Optimise.au3" />
+    <None Include="AutoIt\Panneaux.au3" />
+    <None Include="AutoIt\ToolBox.au3" />
     <None Include="config.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -126,20 +127,23 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="AutoIt\imagemagick.exe">
+    <Content Include="AutoIt\ImageMagick.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="AutoIt\importCSV.exe">
+    <Content Include="AutoIt\ImportCSV.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="AutoIt\optimise.exe">
+    <Content Include="AutoIt\Optimise.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="AutoIt\panneaux.exe">
+    <Content Include="AutoIt\Panneaux.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(TargetDir)*" "$(SolutionDir)bin"  /s /i /Y</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

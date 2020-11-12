@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CutQueue", "CutQueue\CutQueue.csproj", "{D3621F09-87FF-49E1-9400-5A65AEE8C2DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MprSimplifier", "MprSimplifier\MprSimplifier.csproj", "{4088C75A-4CA2-4DDA-9835-1874853EFD7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +17,15 @@ Global
 		{D3621F09-87FF-49E1-9400-5A65AEE8C2DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3621F09-87FF-49E1-9400-5A65AEE8C2DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3621F09-87FF-49E1-9400-5A65AEE8C2DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4088C75A-4CA2-4DDA-9835-1874853EFD7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4088C75A-4CA2-4DDA-9835-1874853EFD7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4088C75A-4CA2-4DDA-9835-1874853EFD7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4088C75A-4CA2-4DDA-9835-1874853EFD7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {10EF1490-B72A-4D8E-B13E-01E551971DB8}
 	EndGlobalSection
 EndGlobal

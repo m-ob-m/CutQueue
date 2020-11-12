@@ -1,8 +1,8 @@
-﻿using System.Collections;
-using static System.Environment;
+﻿using System;
+using System.Collections;
 using System.IO;
 using System.Windows.Forms;
-using System;
+using static System.Environment;
 
 /**
  * \name		ConfigINI

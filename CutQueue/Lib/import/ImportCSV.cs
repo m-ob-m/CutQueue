@@ -1,11 +1,10 @@
-﻿using CutQueue.Lib.import.model;
+﻿using CutQueue.Lib.Fabplan;
+using CutQueue.Lib.import.model;
+using CutQueue.Lib.tools;
 using System;
 using System.IO;
 using System.Linq;
-using CutQueue.Lib.tools;
-using CutQueue.Lib.Fabplan;
 using System.Threading.Tasks;
-using CutQueue.Logging;
 
 /**
  * \name		ImportCSV
@@ -38,7 +37,7 @@ namespace CutQueue
                     _inProgress = true;
                     int previousUpdateDate = await GetLastUpdateDate();
                     int currentUpdateDate = await ImportAllCSV(previousUpdateDate);
-                    if(currentUpdateDate > previousUpdateDate)
+                    if (currentUpdateDate > previousUpdateDate)
                     {
                         await SetLastUpdateDate(currentUpdateDate);
                     }

@@ -14,8 +14,8 @@ namespace CutQueue.Lib.Fabplan
     /// </summary>
     public sealed class FabplanHttpRequest
     {
-        private static FabplanHttpRequest instance = new FabplanHttpRequest();
-        private HttpClient httpClient = null;
+        private static readonly FabplanHttpRequest instance = new FabplanHttpRequest();
+        private readonly HttpClient httpClient = null;
         private HttpResponseMessage response = null;
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace CutQueue.Lib.Fabplan
         {
             try
             {
-                if(parameters != null)
+                if (parameters != null)
                 {
                     List<string> parameterStringArray = new List<string>();
                     foreach (PropertyInfo property in parameters.GetType().GetProperties())
@@ -79,7 +79,7 @@ namespace CutQueue.Lib.Fabplan
                 throw new Exception("The request to the API failed.", e);
             }
 
-            dynamic decodedResponse =  await instance.DecodeResponse();
+            dynamic decodedResponse = await instance.DecodeResponse();
             return decodedResponse;
         }
 
@@ -238,7 +238,7 @@ namespace CutQueue.Lib.Fabplan
     /// </summary>
     public sealed class UnexpectedFabplanHttpResponseFormatException : Exception
     {
-        public UnexpectedFabplanHttpResponseFormatException(string message, Exception innerException = null) : 
+        public UnexpectedFabplanHttpResponseFormatException(string message, Exception innerException = null) :
             base(message, innerException)
         { }
     }

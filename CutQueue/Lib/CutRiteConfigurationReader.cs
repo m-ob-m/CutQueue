@@ -1,8 +1,7 @@
-﻿using System;
-using static System.Environment;
-using System.Collections;
-using System.Windows.Forms;
+﻿using System.Collections;
 using System.IO;
+using System.Windows.Forms;
+using static System.Environment;
 
 namespace CutQueue.Lib
 {
@@ -11,20 +10,17 @@ namespace CutQueue.Lib
         private static Hashtable items = null;
 
         /// <summary>
-        /// Gets static instance of class.
+        /// Gets Cut Rite configuration from configuration files.
         /// </summary>
-        /// <returns>The static instance of the class</returns>
         private static void GetItems()
         {
             items = new Hashtable();
 
-            string configurationFilePath = new Uri(
-                new Uri(
-                    new Uri(ConfigINI.Items["CUT_QUEUE_INSTALLATION_PATH"].ToString()),
-                    ConfigINI.Items["CUT_QUEUE_WORKSPACE"].ToString() + "/"
-                ),
+            string configurationFilePath = Path.Combine(
+                ConfigINI.Items["CUT_QUEUE_INSTALLATION_PATH"].ToString(),
+                ConfigINI.Items["CUT_QUEUE_WORKSPACE"].ToString(),
                 "systemv9.ctl"
-            ).LocalPath;
+            );
 
             if (File.Exists(configurationFilePath))
             {
@@ -36,13 +32,11 @@ namespace CutQueue.Lib
                 Exit(0);
             }
 
-            configurationFilePath = new Uri(
-                new Uri(
-                    new Uri(ConfigINI.Items["CUT_QUEUE_INSTALLATION_PATH"].ToString()),
-                    ConfigINI.Items["CUT_QUEUE_WORKSPACE"].ToString() + "/"
-                ),
+            configurationFilePath = Path.Combine(
+                ConfigINI.Items["CUT_QUEUE_INSTALLATION_PATH"].ToString(),
+                ConfigINI.Items["CUT_QUEUE_WORKSPACE"].ToString(),
                 "mmch.ctl"
-            ).LocalPath;
+            );
 
             if (File.Exists(configurationFilePath))
             {
@@ -56,9 +50,9 @@ namespace CutQueue.Lib
         }
 
         /// <summary>
-        /// Reads a CutQueue's "systemv9.ctl" configuration file.
+        /// Reads a CutRite's "systemv9.ctl" configuration file.
         /// </summary>
-        /// <param name="configurationFilePath">The path of the CutQueue systemv9.ctl file to read</param>
+        /// <param name="configurationFilePath">The path of the CutRite systemv9.ctl file to read</param>
         private static void ReadSystemV9CtlConfigurationFile(string configurationFilePath)
         {
             using (StreamReader streamReader = new StreamReader(configurationFilePath))
@@ -105,8 +99,10 @@ namespace CutQueue.Lib
             }
         }
 
-        public static Hashtable Items {
-            get {
+        public static Hashtable Items
+        {
+            get
+            {
                 if (items == null)
                 {
                     GetItems();

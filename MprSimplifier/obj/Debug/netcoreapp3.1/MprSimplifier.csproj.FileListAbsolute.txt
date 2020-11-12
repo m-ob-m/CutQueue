@@ -1,0 +1,12 @@
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\bin\Debug\netcoreapp3.1\MprSimplifier.exe
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\bin\Debug\netcoreapp3.1\MprSimplifier.deps.json
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\bin\Debug\netcoreapp3.1\MprSimplifier.runtimeconfig.json
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\bin\Debug\netcoreapp3.1\MprSimplifier.runtimeconfig.dev.json
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\bin\Debug\netcoreapp3.1\MprSimplifier.dll
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\bin\Debug\netcoreapp3.1\MprSimplifier.pdb
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\obj\Debug\netcoreapp3.1\MprSimplifier.AssemblyInfoInputs.cache
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\obj\Debug\netcoreapp3.1\MprSimplifier.AssemblyInfo.cs
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\obj\Debug\netcoreapp3.1\MprSimplifier.csproj.CoreCompileInputs.cache
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\obj\Debug\netcoreapp3.1\MprSimplifier.dll
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\obj\Debug\netcoreapp3.1\MprSimplifier.pdb
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\obj\Debug\netcoreapp3.1\MprSimplifier.genruntimeconfig.cache

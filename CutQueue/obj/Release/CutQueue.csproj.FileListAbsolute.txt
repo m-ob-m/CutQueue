@@ -10,7 +10,6 @@ C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.cspro
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.csproj.CopyComplete
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.exe
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.pdb
-C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.csprojAssemblyReference.cache
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\AutoIt\imagemagick.exe
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\AutoIt\importCSV.exe
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\AutoIt\optimise.exe

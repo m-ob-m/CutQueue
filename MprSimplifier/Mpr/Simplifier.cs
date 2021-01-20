@@ -299,37 +299,40 @@ namespace MprSimplifier.Mpr
         {
             Debug.Write("Start unused variables removal...\r\n");
 
-            HashSet<string> usedvariables = new HashSet<string>();
+            HashSet<string> usedVariables = new HashSet<string>();
             foreach (Machining machining in Machinings)
             {
-                usedvariables.UnionWith(machining.DependsOn);
+                usedVariables.UnionWith(machining.DependsOn);
             }
             foreach (Drawing drawing in Drawings)
             {
-                usedvariables.UnionWith(drawing.DependsOn);
+                usedVariables.UnionWith(drawing.DependsOn);
             }
             foreach (CoordinateSystem coordinateSystem in CoordinateSystems)
             {
-                usedvariables.UnionWith(coordinateSystem.DependsOn);
-            }
-            foreach (Variable variable in Variables)
-            {
-                usedvariables.UnionWith(variable.DependsOn);
+                usedVariables.UnionWith(coordinateSystem.DependsOn);
             }
 
             uint amountTreated = 0;
             uint totalAmount = (uint)Variables.Count;
-            for (int i = Variables.Count - 1; i >= 0; i--)
+            int i = Variables.Count - 1;
+            while (i >= 0)
             {
-                if (!usedvariables.Contains(Variables[i].Name))
+                if (!usedVariables.Contains(Variables[i].Name))
                 {
                     Variables.RemoveAt(i);
+                }
+                else 
+                {
+                    usedVariables.UnionWith(Variables[i].DependsOn);
                 }
 
                 if (++amountTreated % 500 == 0)
                 {
                     Debug.Write($"{Math.Round((double)amountTreated / totalAmount * 100, 0, MidpointRounding.AwayFromZero)}%\r\n");
                 }
+                
+                i--;
             }
 
             Debug.Write("End unused variables removal...\r\n");
@@ -344,6 +347,11 @@ namespace MprSimplifier.Mpr
             foreach (Machining machining in Machinings)
             {
                 bool? coordinateSystemFound = machining.CoordinateSystem == null ? (bool?)null : false;
+                
+                if (coordinateSystemFound == false && new List<string>() { "00", "A00", "B00", "C00", "D00" }.Contains(machining.CoordinateSystem))
+                {
+                    coordinateSystemFound = true;
+                }
 
                 if (coordinateSystemFound == false)
                 {
@@ -355,11 +363,11 @@ namespace MprSimplifier.Mpr
                             break;
                         }
                     }
+                }
 
-                    if (coordinateSystemFound == false)
-                    {
-                        throw new Exception($"Post simplification verification failed: coordinate system {machining.CoordinateSystem} is missing.");
-                    }
+                if (coordinateSystemFound == false)
+                {
+                    throw new Exception($"Post simplification verification failed: coordinate system {machining.CoordinateSystem} is missing.");
                 }
 
                 bool? drawingFound = machining.Drawing == null ? (bool?)null : false;
@@ -386,6 +394,11 @@ namespace MprSimplifier.Mpr
             {
                 bool? coordinateSystemFound = drawing.CoordinateSystem == null ? (bool?)null : false;
 
+                if (coordinateSystemFound == false && new List<string>() { "00", "A00", "B00", "C00", "D00" }.Contains(drawing.CoordinateSystem))
+                {
+                    coordinateSystemFound = true;
+                }
+
                 if (coordinateSystemFound == false)
                 {
                     foreach (CoordinateSystem coordinateSystem in CoordinateSystems)
@@ -396,11 +409,11 @@ namespace MprSimplifier.Mpr
                             break;
                         }
                     }
+                }
 
-                    if (coordinateSystemFound == false)
-                    {
-                        throw new Exception($"Post simplification verification failed: coordinate system {drawing.CoordinateSystem} is missing.");
-                    }
+                if (coordinateSystemFound == false)
+                {
+                    throw new Exception($"Post simplification verification failed: coordinate system {drawing.CoordinateSystem} is missing.");
                 }
             }
 

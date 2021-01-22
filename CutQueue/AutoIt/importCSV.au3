@@ -1,3 +1,6 @@
+#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_UseX64=n
+#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 #include <Constants.au3>
 #include <GUIListView.au3>
 ;
@@ -24,7 +27,7 @@ Local $DEBUG = True
 Main()
 
 Func Main()
-	Local $partListFileName = ($cmdLine[0] > 0) ? $cmdLine[1] : "71999P.txt" ; CSV à importer selon la valeur en argument.
+	Local $partListFileName = ($cmdLine[0] > 0) ? $cmdLine[1] : "71999P.txt" ; CSV Ã  importer selon la valeur en argument.
 	Local $temp
 	Debug(@ScriptName & ' started with batch "' & _PathSplit($partListFileName, $temp, $temp, $temp, $temp)[3] & '".' & @CRLF)
 
@@ -56,7 +59,7 @@ Func Main()
 		ExitWithCodeAndMessage(2, $errorMessage)
 	EndIf
 
-	; Fermer la fenêtre principale.
+	; Fermer la fenÃªtre principale.
 	KillWindowAndProcess($mainWindow, $processID)
 	Sleep(500)
 	If WinExists($mainWindow) Then

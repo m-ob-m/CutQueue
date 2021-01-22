@@ -26,3 +26,4 @@ C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\ImageMagi
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\ImportCSV.exe
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\Optimise.exe
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Debug\AutoIt\Panneaux.exe
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Debug\CutQueue.csprojAssemblyReference.cache

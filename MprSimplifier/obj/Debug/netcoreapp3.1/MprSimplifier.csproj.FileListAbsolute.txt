@@ -10,3 +10,4 @@ C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\obj\Debug\netcoreapp3
 C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\obj\Debug\netcoreapp3.1\MprSimplifier.dll
 C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\obj\Debug\netcoreapp3.1\MprSimplifier.pdb
 C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\obj\Debug\netcoreapp3.1\MprSimplifier.genruntimeconfig.cache
+C:\Users\m.maurice\Documents\github\CutQueue\MprSimplifier\obj\Debug\netcoreapp3.1\MprSimplifier.csprojAssemblyReference.cache

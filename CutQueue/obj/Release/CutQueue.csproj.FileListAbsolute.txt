@@ -14,3 +14,4 @@ C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\AutoIt\imagema
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\AutoIt\importCSV.exe
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\AutoIt\optimise.exe
 C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\bin\Release\AutoIt\panneaux.exe
+C:\Users\m.maurice\Documents\github\CutQueue\CutQueue\obj\Release\CutQueue.csprojAssemblyReference.cache

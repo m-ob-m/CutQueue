@@ -36,6 +36,7 @@ Local Const $CUT_RITE_OPTIMISE_ERROR_WINDOW_TITLE = "Error"
 Local Const $WINDOWS_BATCH_PROCESS_UNCAUGHT_EXCEPTION_WINDOW_TITLE = "BATCH"
 Local Const $CUT_RITE_SAVE_CHANGES_WINDOW_TEXT = "Save changes"
 Local Const $CUT_RITE_OVERWRITE_PANELS_WINDOW_TEXT = "Overwrite board list with data from board library"
+Local Const $CUT_RITE_MAXIMUM_IMPORTATION_IN_PROGRESS_WINDOW_RESPONSE_TIME = 120
 
 Func CutRite_RetrieveErrorMessageFromGXWNDWindow($errorWindow)
 	Local $coord = [100, 30]
@@ -182,7 +183,7 @@ Func CutRite_ImportPartsFromCSV($mainWindow, $partListFileName)
 	Local $importInprogressWindow = WinWait( _
 		"[CLASS:" & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_CLASS_NAME & "; TITLE:" & $CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TITLE & ";]", _
 		$CUT_RITE_IMPORT_IN_PROGRESS_WINDOW_TEXT, _
-		30 _
+		$CUT_RITE_MAXIMUM_IMPORTATION_IN_PROGRESS_WINDOW_RESPONSE_TIME _
 	)
 	If($importInprogressWindow == 0) Then
 		Debug( _

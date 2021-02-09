@@ -10,10 +10,20 @@ namespace MprSimplifier
     {
         private static Uri InputFileUri { get; set; } = null;
         private static Uri OutputFileUri { get; set; } = null;
-        static void Main(string[] arguments)
+        static int Main(string[] arguments)
         {
-            ReadArguments(arguments.ToList());
-            Mpr.Simplifier.Simplify(new Mpr.File(InputFileUri), new Mpr.File(OutputFileUri));
+            try
+            {
+                ReadArguments(arguments.ToList());
+                Mpr.Simplifier.Simplify(new Mpr.File(InputFileUri), new Mpr.File(OutputFileUri));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return -1;
+            }
+
+            return 0;
         }
 
         private static void ReadArguments(List<string> arguments)

@@ -1,6 +1,7 @@
 ﻿using CutQueue.Lib;
 using CutQueue.Lib.Fabplan;
 using CutQueue.Lib.Tools;
+using CutQueue.Logging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,7 @@ namespace CutQueue
                     catch (Exception e)
                     {
                         _inProgress = false;
+                        Logger.Log(e.ToString());
                         throw new Exception("Could not optimize batch.", e);
                     }
                 }
@@ -80,6 +82,7 @@ namespace CutQueue
                 }
                 catch (Exception e)
                 {
+                    Logger.Log(e.ToString() + "\n");
                     await UpdateEtatMpr(((dynamic)batch).id, 'E', e.Message);
                 }
             }
@@ -222,11 +225,8 @@ namespace CutQueue
             string sourceDirectory = CutRiteConfigurationReader.Items["SYSTEM_DATA_PATH"].ToString();
             string destinationDirectory = Path.Combine(CutRiteConfigurationReader.Items["MACHINING_CENTER_TRANSFER_PATTERNS_PATH"].ToString(), batchName);
 
-            try
-            {
-                Directory.Delete(destinationDirectory, true);
-            }
-            catch (DirectoryNotFoundException) { }
+                
+            FileAdvanced.Delete(destinationDirectory);
             Directory.CreateDirectory(destinationDirectory);
 
             // Simplifier les programmes d'usinage.

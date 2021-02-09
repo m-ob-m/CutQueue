@@ -1,6 +1,7 @@
 ﻿using CutQueue.Lib.Fabplan;
 using CutQueue.Lib.import.model;
 using CutQueue.Lib.tools;
+using CutQueue.Logging;
 using System;
 using System.IO;
 using System.Linq;
@@ -44,7 +45,7 @@ namespace CutQueue
                 }
                 catch (Exception e)
                 {
-                    throw new Exception("Error during importation process.", e);
+                    Logger.Log(e.ToString() + "\n");
                 }
                 finally
                 {

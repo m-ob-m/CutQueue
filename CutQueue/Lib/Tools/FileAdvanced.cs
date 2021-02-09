@@ -31,7 +31,26 @@ namespace CutQueue.Lib.Tools
                         manualResetEventSlim.Wait((int)MAXIMUM_WAIT_TIME_FOR_DELETION_IN_SECONDS * 1000);
                         if (!manualResetEventSlim.IsSet)
                         {
-                            throw new Exception($"File \"{path}\" took more than {MAXIMUM_WAIT_TIME_FOR_DELETION_IN_SECONDS} seconds to delete.");
+                            throw new Exception($"File \"{path}\" took more than the maximum allowed time of {MAXIMUM_WAIT_TIME_FOR_DELETION_IN_SECONDS} seconds to delete.");
+                        }
+                    }
+                }
+                else if (Directory.Exists(path))
+                {
+                    using (FileSystemWatcher fileSystemWatcher = new FileSystemWatcher(Path.GetDirectoryName(path)))
+                    {
+                        manualResetEventSlim.Reset();
+
+                        fileSystemWatcher.Filter = Path.GetFileName(path);
+                        fileSystemWatcher.Deleted += (object source, FileSystemEventArgs e) => { manualResetEventSlim.Set(); };
+                        fileSystemWatcher.NotifyFilter = NotifyFilters.DirectoryName | NotifyFilters.LastWrite;
+                        fileSystemWatcher.EnableRaisingEvents = true;
+                        Directory.Delete(path);
+
+                        manualResetEventSlim.Wait((int)MAXIMUM_WAIT_TIME_FOR_DELETION_IN_SECONDS * 1000);
+                        if (!manualResetEventSlim.IsSet)
+                        {
+                            throw new Exception($"Folder \"{path}\" took more than the maximum allowed time of {MAXIMUM_WAIT_TIME_FOR_DELETION_IN_SECONDS} seconds to delete.");
                         }
                     }
                 }

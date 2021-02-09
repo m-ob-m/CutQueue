@@ -154,7 +154,7 @@ namespace CutQueue
             }
             catch (Exception e)
             {
-                Logger.Log(e.ToString());
+                Logger.Log(e.ToString() + "\n");
             }
         }
 
@@ -163,16 +163,9 @@ namespace CutQueue
         /// </summary>
         private async Task DoSync()
         {
-            try
-            {
-                await LogInToFabplan();
-                _ = Task.Factory.StartNew(async () => await csv.DoSync());
-                _ = Task.Factory.StartNew(async () => await optimize.DoOptimize());
-            }
-            catch (Exception e)
-            {
-                Logger.Log(e.ToString());
-            }
+            await LogInToFabplan();
+            _ = Task.Factory.StartNew(async () => await csv.DoSync());
+            _ = Task.Factory.StartNew(async () => await optimize.DoOptimize());
         }
 
         /// <summary>
@@ -188,7 +181,7 @@ namespace CutQueue
             }
             catch (Exception e)
             {
-                Logger.Log(e.ToString());
+                Logger.Log(e.ToString() + "\n");
             }
 
             //Cleanup so that the icon will be removed when the application is closed

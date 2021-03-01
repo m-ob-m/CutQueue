@@ -45,7 +45,7 @@ namespace CutQueue.Lib.Tools
                         fileSystemWatcher.Deleted += (object source, FileSystemEventArgs e) => { manualResetEventSlim.Set(); };
                         fileSystemWatcher.NotifyFilter = NotifyFilters.DirectoryName | NotifyFilters.LastWrite;
                         fileSystemWatcher.EnableRaisingEvents = true;
-                        Directory.Delete(path);
+                        Directory.Delete(path, true);
 
                         manualResetEventSlim.Wait((int)MAXIMUM_WAIT_TIME_FOR_DELETION_IN_SECONDS * 1000);
                         if (!manualResetEventSlim.IsSet)

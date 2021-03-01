@@ -26,9 +26,9 @@ Local $DEBUG = True
 Main()
 
 Func Main()
-	Local $partListFileName = ($cmdLine[0] > 0) ? $cmdLine[1] : "71999P.txt" ; CSV à importer selon la valeur en argument.<
+	Local $partListFileName = ($cmdLine[0] > 0) ? $cmdLine[1] : "71999P.txt" ; CSV à importer selon la valeur en argument.
 	Local $temp
-	Local $batchName = _PathSplit($partListFileName, $temp, $temp, $temp, $temp)[3]
+	Local $batchName = _PathSplit($partListFileName, $temp, $temp, $temp, $temp)[$PATH_FILENAME]
 	Debug(@ScriptName & ' started with batch "' & $batchName & '".' & @CRLF)
 
 	Local $attemptCounter = 1
@@ -54,35 +54,13 @@ Func Main()
 	WEnd
 
 	; Attendre la fenetre de revue. Durant ce temps, vérifier si la fenêtre d'erreur de RunCalc ouvre
-	Local $i
 	Debug("Optimisation process starting." & @CRLF)
-	Local $reviewRunsWindow = 0
 	Local $errorMessage = ""
-	Local $temp = CutRite_Optimize($partListWindow)
-	If @error == 0 Then
-		Debug("Optimisation process done." & @CRLF)
-		$reviewRunsWindow = $temp
-
-		#comments-start
-		; Transfer to machining center
-		Debug("Transfer to machining center process starting" & @CRLF)
-		Local $MAX_ATTEMPTS = 5
-		$i = 0
-		Do
-			$i += 1
-			$errorMessage = CutRite_TransferToMachiningCenter($reviewRunsWindow)
-			If @error Then
-				Debug('The transfer to machining center process returned error message "' & $errorMessage & '" on attempt ' & $i & ' of ' & $MAX_ATTEMPTS & '.' & @CRLF)
-			Else
-				Debug('The transfer to machining center process succeeded on attempt ' & $i & ' of ' & $MAX_ATTEMPTS & '.' & @CRLF)
-				ExitLoop
-			EndIf
-		Until($i > $MAX_ATTEMPTS)
-		Debug("Transfer to machining center process done." & @CRLF)
-
-		#comments-end
-	Else
+	Local $reviewRunsWindow = CutRite_Optimize($partListWindow, $batchName)
+	If @error <> 0 Then
 		$errorMessage = $temp
+	Else
+		Debug("Optimisation process done." & @CRLF)
 	EndIf
 
 
@@ -91,7 +69,7 @@ Func Main()
 	KillProcess($processID)
 
 	; Kill process "Report.exe" if it becomes a zombie.
-	$i = 1
+	Local $i = 1
 	Local $processName = "Report.exe"
 	While($i <= $MAX_ATTEMPTS And ProcessExists($processName))
 		$i += 1

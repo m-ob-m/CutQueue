@@ -341,7 +341,7 @@ Func CutRite_TransferToMachiningCenter($reviewRunsWindow)
 	WEnd
 EndFunc
 
-Func CutRite_Optimize($partListWindow)
+Func CutRite_Optimize($partListWindow, $batchName)
 	Local $coord = [488, 25]
 	ControlClick($partListWindow, "", "[CLASS:" & $CUT_RITE_PART_LIST_WINDOW_TOOL_BAR_CLASS_NAME & "; INSTANCE:1;]", $MOUSE_CLICK_PRIMARY, 1, $coord[0], $coord[1])
 	Debug( _
@@ -363,7 +363,6 @@ Func CutRite_Optimize($partListWindow)
 		Debug('Clicked control with class name "' & $CUT_RITE_BUTTON_CLASS_NAME & '" and instance number 2 once with ' & $MOUSE_CLICK_PRIMARY & ' button.' & @CRLF)
 	EndIf
 
-	Local $batchName = StringRegExpReplace(WinGetTitle($partListWindow), "\A" & $CUT_RITE_PART_LIST_WINDOW_TITLE_PART_1 & "(.*+)\z", "\1", 1)
 	Local $preOptimiseWindowTitle = $CUT_RITE_PREOPTIMISE_WINDOW_TITLE_PART_1 & $batchName
 	Local $preOptimiseWindow = WinWait("[TITLE:" & $preOptimiseWindowTitle & ";]", "", 5)
 	If Not $preOptimiseWindow Then

@@ -58,14 +58,14 @@ Func Main()
 	Local $errorMessage = ""
 	Local $reviewRunsWindow = CutRite_Optimize($partListWindow, $batchName)
 	If @error <> 0 Then
-		$errorMessage = $temp
+		$errorMessage = $reviewRunsWindow
 	Else
 		Debug("Optimisation process done." & @CRLF)
+		KillWindow($reviewRunsWindow)
 	EndIf
 
 
 	KillWindow($partListWindow)
-	KillWindow($reviewRunsWindow)
 	KillProcess($processID)
 
 	; Kill process "Report.exe" if it becomes a zombie.

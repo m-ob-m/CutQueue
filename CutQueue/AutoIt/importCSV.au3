@@ -61,7 +61,7 @@ Func Main()
 
 	; Fermer la fenêtre principale.
 	KillWindowAndProcess($mainWindow, $processID)
-	Sleep(500)
+	Sleep(1000)
 	If WinExists($mainWindow) Then
 		Debug('Could not close window with handle ' & $mainWindow & '.' & @CRLF)
 		ExitWithCodeAndMessage(3, 'Could not close window with handle ' & $mainWindow & '.')

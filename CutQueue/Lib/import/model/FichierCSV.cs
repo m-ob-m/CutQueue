@@ -56,7 +56,7 @@ namespace CutQueue.Lib.import.model
         /// <summary>
         /// Converts the list of EntreeCSV into a job object that is then sent to Fabplan for creation.
         /// </summary>
-        public async Task Import()
+        public async Task Import(bool allowDelete = false)
         {
             /* Do not create a job that contains no part. */
             if (_entrees.Count > 0)
@@ -68,6 +68,11 @@ namespace CutQueue.Lib.import.model
                 bool isLinked = false;
                 if (exists)
                 {
+                    if (!allowDelete)
+                    {
+                        return;
+                    }
+
                     isLinked = await JobIsLinked();
                 }
 
@@ -91,10 +96,8 @@ namespace CutQueue.Lib.import.model
                         dynamic jobType;
                         int count = job.jobTypes.Count;
                         int index = count - 1;
-                        string type = (index >= 0) ? job.jobTypes[index].type : null;
-                        string model = (index >= 0) ? job.jobTypes[index].model : null;
-                        string externalProfile = (index >= 0) ? job.jobTypes[index].externalProfile : null;
-                        if (count <= 0 || entree.Type != type || entree.Modele != model || entree.Profil != externalProfile)
+                        string sectionId = count > 0 ? job.jobTypes[index].sectionId : null;
+                        if (entree.SectionId != sectionId)
                         {
                             jobType = new ExpandoObject();
                             jobType.type = entree.Type;
@@ -102,6 +105,7 @@ namespace CutQueue.Lib.import.model
                             jobType.externalProfile = entree.Profil;
                             jobType.material = entree.Essence;
                             jobType.parts = new List<ExpandoObject>();
+                            jobType.sectionId = entree.SectionId;
                             job.jobTypes.Add(jobType);
                         }
                         jobType = job.jobTypes[job.jobTypes.Count - 1];
@@ -288,6 +292,7 @@ namespace CutQueue.Lib.import.model
         private string _dimH2;
         private string _dueDate;
         private string _customerPO;
+        private string _sectionId;
 
 
         /// <summary>
@@ -318,6 +323,7 @@ namespace CutQueue.Lib.import.model
         public string DimH2 { get => _dimH2; set => _dimH2 = value; }
         public string DueDate { get => _dueDate; set => _dueDate = value; }
         public string CustomerPO { get => _customerPO; set => _customerPO = value; }
+        public string SectionId { get => _sectionId; set => _sectionId = value; } 
 
         /// <summary>
         /// Parses the line from the csv file and extracts its data. 
@@ -326,7 +332,7 @@ namespace CutQueue.Lib.import.model
         {
             List<string> split = Ligne.Split(';').ToList();
 
-            while (split.Count < 17)
+            while (split.Count < 18)
             {
                 split.Add("");
             }
@@ -348,6 +354,8 @@ namespace CutQueue.Lib.import.model
             DimH2 = split[14];
             DueDate = split[15];
             CustomerPO = split[16];
+            SectionId = split[17];
+
 
             if (Type.Trim() == "")
             {

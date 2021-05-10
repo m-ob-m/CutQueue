@@ -69,12 +69,12 @@ namespace CutQueue
             {
                 FileInfo[] files = new DirectoryInfo(ConfigINI.Items["SIA_CSV_PATH"].ToString())
                     .GetFiles()
-                    .Where(p => (int)p.LastWriteTimeUtc.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds > highestDate)
+                    .Where(p => (int)p.LastWriteTimeUtc.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds >= highestDate)
                     .OrderBy(p => p.LastWriteTimeUtc).ToArray();
 
                 foreach (FileInfo file in files)
                 {
-                    await new FichierCSV(file).Import();
+                    await new FichierCSV(file).Import((int)file.LastWriteTimeUtc.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds > highestDate);
                     highestDate = (int)file.LastWriteTimeUtc.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
                 }
             }
